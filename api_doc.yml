@@ -1,0 +1,591 @@
+openapi: 3.0.0
+info:
+  description: Api for the Spotted Unitn WebApp
+  version: "1.0.0"
+  title: Spotted Unitn API
+  
+tags:
+  - name: users
+    description: users API
+  - name: shops
+    description: shops API
+    
+paths:
+  /users:
+    post:
+      tags:
+      - users
+      summary: register a new user
+      description: register a new user. subscription date is null until one admin confirms the account.
+      requestBody:
+        description: user data
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegisterBody'
+      responses:
+        '201':
+          description: user registered
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+                
+    get:
+      tags:
+      - users
+      security: 
+        - openId:
+          - admin
+      summary: get all users
+      description: get all users, unconfirmed first
+      responses:
+        '200':
+          description: all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '401':
+          description: unauthorized user, only admin can call this api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+  
+  /users/{user_id}/confirm:
+    put:
+      tags:
+      - users
+      summary: confirm an already registered user
+      description: aside the confirmation of the user account, the subscription date is set to this moment
+      security: 
+        - openId:
+          - admin
+      parameters:
+        - $ref: "#/components/parameters/UserIdParam"
+      responses:
+        '200':
+          description: user confirmed
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserException"
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '401':
+          description: unauthorized user, only admin can call this api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '409':
+          description: user already confirmed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"             
+  
+  /users/login:
+    post:
+      tags:
+      - users
+      summary: user login
+      requestBody:
+        description: user data for login
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLoginBody'
+      responses:
+        '200':
+          description: user logged in
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"        
+  
+  /users/me:
+    get:
+      tags:
+      - users
+      security: 
+        - openId:
+          - admin
+          - authenticated
+      summary: get user info
+      responses:
+        '200':
+          description: user info
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '403':
+          description: user not confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserException'
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserException'
+        '401':
+          description: unauthorized user, only authenticated user can call this api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"        
+          
+    delete:
+      tags:
+        - users
+      security: 
+        - openId:
+          - admin
+          - authenticated
+      summary: delete own account
+      responses:
+        '200':
+          description: account deleted
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '403':
+          description: user not confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserException'
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserException'
+        '401':
+          description: unauthorized user, only authenticated user can call this api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+       
+  /users/me/profilePhoto:
+    get:
+      tags:
+        - users
+      security: 
+        - openId:
+          - admin
+          - authenticated
+      summary: get user profile photo
+      responses:
+        '200':
+          description: user profile photo
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '403':
+          description: user not confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserException'
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserException'
+        '401':
+          description: unauthorized user, only authenticated user can call this api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+  
+       
+  /shops:
+    get:
+      tags:
+      - shops
+      summary: get all shops
+      description: get all shops
+      responses:
+        '200':
+          description: all shops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Shop'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"        
+          
+    post:
+      tags:
+      - shops
+      security: 
+        - openId:
+          - admin
+      summary: add new shop
+      responses:
+        '201':
+          description: shop added
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '401':
+          description: unauthorized user, only admin user can call this api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+          
+  /shops/{shop_id}:
+    get:
+      tags:
+      - shops
+      summary: get shop with shop_id
+      responses:
+        '200':
+          description: shop with shop_id
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Shop'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '404':
+          description: shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopException'
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"       
+      
+    put:
+      tags:
+      - shops
+      security: 
+        - openId:
+          - admin
+      summary: change shop data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Shop'
+      responses:
+        '200':
+          description: shop data changed
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '404':
+          description: shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopException'
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+                
+    delete:
+      tags:
+      - shops
+      security: 
+        - openId:
+          - admin
+      summary: delete shop
+      responses:
+        '200':
+          description: shop deleted
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '404':
+          description: shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopException'
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+                
+    parameters:
+      - $ref: "#/components/parameters/ShopIdParam"
+      
+  /shops/{shop_id}/coverPhoto:
+    get:
+      tags:
+      - shops
+      summary: get shop cover photo
+      parameters:
+      - $ref: "#/components/parameters/ShopIdParam"
+      responses:
+        '200':
+          description: shop cover photo
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+        '404':
+          description: shop not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopException'
+        default:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+    
+components:
+
+  securitySchemes:
+    openId:
+      type: openIdConnect
+      openIdConnectUrl: https://
+
+  parameters:
+    UserIdParam:
+      in: path
+      name: user_id
+      description: user id
+      required: true
+      schema: 
+        type: integer
+        
+    ShopIdParam:
+      in: path
+      name: shop_id
+      description: shop id
+      required: true
+      schema: 
+        type: integer
+        
+  schemas:
+    UserRegisterBody:
+      type: object
+      required:
+      - name
+      - lastName
+      - profilePhoto
+      - mail
+      - password
+      properties:
+        name:
+          type: string
+        lastName:
+          type: string
+        profilePhoto:
+          type: string
+          format: binary
+        mail:
+          type: string
+        password:
+          type: string
+    
+    UserLoginBody:
+      type: object
+      required:
+      - mail
+      - password
+      properties:
+        mail:
+          type: string
+        password:
+          type: string
+          
+    User:
+      type: object
+      required:
+      - name
+      - lastName
+      - mail
+      properties:
+        name:
+          type: string
+        lastName:
+          type: string
+        mail:
+          type: string
+          
+    Shop:
+      type: object
+      required:
+      - name
+      - linkToWebsite
+      - description
+      - discountValue
+      - address
+      properties:
+        name:
+          type: string
+        linkToWebsite:
+          type: string
+        description:
+          type: string
+        discountValue:
+          type: string
+        address:
+          type: string
+          
+    UserException:
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+          
+    ShopException:
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+    
+    GenericException:
+      properties:
+        message:
+          type: string
+        stack:
+          type: string
+                  
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com
