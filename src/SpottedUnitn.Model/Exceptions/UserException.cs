@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SpottedUnitn.Model.UserAggregate;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,36 +13,42 @@ namespace SpottedUnitn.Model.Exceptions
 
         public enum UserExceptionCode
         {
-            INVALID_NAME,
-            INVALID_LASTNAME,
-            INVALID_MAIL,
-            INVALID_PASSWORD,
-            INVALID_PROFILE_PHOTO
+            InvalidName,
+            InvalidLastName,
+            InvalidMail,
+            InvalidPassword,
+            InvalidProfilePhoto,
+            CannotConfirmRegistration
         }
 
         public static UserException InvalidNameException(string name)
         {
-            return new UserException(UserExceptionCode.INVALID_NAME, "name cannot be null or empty");
+            return new UserException(UserExceptionCode.InvalidName, "name cannot be null or empty");
         }
 
         public static UserException InvalidLastNameException(string lastName)
         {
-            return new UserException(UserExceptionCode.INVALID_LASTNAME, "lastname cannot be null or empty");
+            return new UserException(UserExceptionCode.InvalidLastName, "lastname cannot be null or empty");
         }
 
         public static UserException InvalidMailException(string mail)
         {
-            return new UserException(UserExceptionCode.INVALID_MAIL, "mail not valid");
+            return new UserException(UserExceptionCode.InvalidMail, "mail not valid");
         }
 
         public static UserException InvalidPasswordException(string password)
         {
-            return new UserException(UserExceptionCode.INVALID_PASSWORD, $"password ({password}) must be at least 8 characters long and contain letters and digits");
+            return new UserException(UserExceptionCode.InvalidPassword, $"password ({password}) must be at least 8 characters long and contain letters and digits");
         }
 
         public static UserException InvalidProfilePhotoException(byte[] profilePhoto)
         {
-            return new UserException(UserExceptionCode.INVALID_PROFILE_PHOTO, "profilePhoto cannot be null or empty");
+            return new UserException(UserExceptionCode.InvalidProfilePhoto, "profilePhoto cannot be null or empty");
+        }
+
+        public static UserException CannotConfirmRegistrationException(User confirmee, User confirmed)
+        {
+            return new UserException(UserExceptionCode.CannotConfirmRegistration, $"user (Id={confirmee.Id}, Role={confirmee.Role}) cannot confirm the registration of user (Id={confirmed.Id}, Role={confirmed.Role})");
         }
     }
 }

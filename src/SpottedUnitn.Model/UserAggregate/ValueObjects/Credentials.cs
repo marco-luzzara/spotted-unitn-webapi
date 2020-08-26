@@ -36,6 +36,9 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
 
         protected bool IsPasswordValid(string password)
         {
+            if (string.IsNullOrEmpty(password))
+                return false;
+
             return Regex.IsMatch(password, @"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$");
         }
 
