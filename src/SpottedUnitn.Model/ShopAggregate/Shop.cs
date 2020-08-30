@@ -1,5 +1,6 @@
 ﻿using SpottedUnitn.Infrastructure.Validation;
 using SpottedUnitn.Model.Exceptions;
+using SpottedUnitn.Model.UserAggregate;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -29,6 +30,19 @@ namespace SpottedUnitn.Model.ShopAggregate
 
         private Shop()
         {
+        }
+
+        public static Shop Create(string name, string description, string discount)
+        {
+            var shop = new Shop();
+
+            shop.SetName(name);
+            shop.SetDescription(description);
+            shop.SetDiscount(discount);
+            shop.coverPicture = null;
+            shop.linkToSite = null;
+
+            return shop;
         }
 
         public void SetName(string name)
@@ -74,6 +88,9 @@ namespace SpottedUnitn.Model.ShopAggregate
 
         private static string ValidateLinkToSite(string linkToSite)
         {
+            if (linkToSite == "")
+                return linkToSite;
+
             if (!UrlValidation.IsValid(linkToSite))
                 throw ShopException.InvalidLinkToSiteException(linkToSite);
 
@@ -82,7 +99,7 @@ namespace SpottedUnitn.Model.ShopAggregate
 
         private static byte[] ValidateCoverPicture(byte[] coverPicture)
         {
-            if (coverPicture?.Length == 0)
+            if (coverPicture == null)
                 throw ShopException.InvalidCoverPictureException(coverPicture);
 
             return coverPicture;

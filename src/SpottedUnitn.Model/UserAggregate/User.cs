@@ -87,12 +87,12 @@ namespace SpottedUnitn.Model.UserAggregate
             return profilePhoto;
         }
 
-        public void ConfirmUserRegistration(User confirmingUser, IDateTimeOffsetService dtoService = null)
+        public void ChangeRegistrationToConfirmed(IDateTimeOffsetService dtoService)
         {
-            if (this.Role == UserRole.Admin && confirmingUser.Role == UserRole.Registered)
-                confirmingUser.subscriptionDate = dtoService.Now;
+            if (this.Role == UserRole.Registered && this.subscriptionDate == null)
+                this.subscriptionDate = dtoService.Now;
             else
-                throw UserException.CannotConfirmRegistrationException(this, confirmingUser);
+                throw UserException.CannotConfirmRegistrationException(this);
         }
 
         public bool IsSubscriptionValid(IDateTimeOffsetService dtoService)

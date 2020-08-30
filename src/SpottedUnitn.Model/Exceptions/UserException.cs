@@ -46,9 +46,9 @@ namespace SpottedUnitn.Model.Exceptions
             return new UserException(UserExceptionCode.InvalidProfilePhoto, "profilePhoto cannot be null or empty");
         }
 
-        public static UserException CannotConfirmRegistrationException(User confirmee, User confirmed)
+        public static UserException CannotConfirmRegistrationException(User confirmed)
         {
-            return new UserException(UserExceptionCode.CannotConfirmRegistration, $"user (Id={confirmee.Id}, Role={confirmee.Role}) cannot confirm the registration of user (Id={confirmed.Id}, Role={confirmed.Role})");
+            return new UserException(UserExceptionCode.CannotConfirmRegistration, $"user (Id={confirmed.Id}, Role={confirmed.Role}) cannot be confirmed because he is admin or has already been confirmed");
         }
     }
 }

@@ -203,13 +203,11 @@ namespace SpottedUnitn.Model.Test
         }
 
         [DataTestMethod]
-        [DataRow(User.UserRole.Registered, User.UserRole.Registered, false)]
-        [DataRow(User.UserRole.Registered, User.UserRole.Admin, false)]
-        [DataRow(User.UserRole.Admin, User.UserRole.Registered, true)]
-        [DataRow(User.UserRole.Admin, User.UserRole.Admin, false)]
-        public void ConfirmUserRegistration_VerifyUserAllowed(User.UserRole confirmeeUserRole, User.UserRole confirmedUserRole, bool canConfirm)
+        [DataRow(User.UserRole.Registered, true, false)]
+        [DataRow(User.UserRole.Admin, false, false)]
+        [DataRow(User.UserRole.Registered, false, true)]
+        public void ChangeRegistrationToConfirmed_VerifyUserAllowed(User.UserRole confirmedUserRole, bool confirmTwice, bool canConfirm)
         {
-            var confirmeeUser = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, confirmeeUserRole);
             var confirmedUser = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, confirmedUserRole);
 
             var now = DateTimeOffset.Now;
@@ -218,7 +216,10 @@ namespace SpottedUnitn.Model.Test
             var isConfirmed = true;
             try
             {
-                confirmeeUser.ConfirmUserRegistration(confirmedUser, dateTimeOffsetService);
+                confirmedUser.ChangeRegistrationToConfirmed(dateTimeOffsetService);
+
+                if (confirmTwice)
+                    confirmedUser.ChangeRegistrationToConfirmed(dateTimeOffsetService);
             }
             catch (UserException exc) when (exc.Code == (int) UserException.UserExceptionCode.CannotConfirmRegistration)
             {
@@ -239,15 +240,15 @@ namespace SpottedUnitn.Model.Test
             var admin = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Admin);
             yield return new object[] { admin, dtoService, true };
 
-            var registeredInvalid = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Registered);
-            admin.ConfirmUserRegistration(registeredInvalid, dtoService);
-            yield return new object[] { registeredInvalid, dtoServiceMock ,false };
+            var registeredExpired = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Registered);
+            registeredExpired.ChangeRegistrationToConfirmed(dtoService);
+            yield return new object[] { registeredExpired, dtoServiceMock, false };
 
             var registeredUnconfirmed = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Registered);
             yield return new object[] { registeredUnconfirmed, dtoService ,false };
 
             var registeredValid = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Registered);
-            admin.ConfirmUserRegistration(registeredValid, dtoService);
+            registeredValid.ChangeRegistrationToConfirmed(dtoService);
             yield return new object[] { registeredValid, dtoService, true };
         }
 

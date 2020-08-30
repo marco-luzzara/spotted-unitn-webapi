@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SpottedUnitn.Model.UserAggregate;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -16,7 +17,8 @@ namespace SpottedUnitn.Model.Exceptions
             InvalidLinkToSite,
             InvalidDescription,
             InvalidDiscount,
-            InvalidCoverPicture
+            InvalidCoverPicture,
+            CannotCreate
         }
 
         public static ShopException InvalidNameException(string name)
@@ -26,7 +28,7 @@ namespace SpottedUnitn.Model.Exceptions
 
         public static ShopException InvalidLinkToSiteException(string linkToSite)
         {
-            return new ShopException(ShopExceptionCode.InvalidLinkToSite, $"linkToSite ({linkToSite}) does not represent a valid http/s address");
+            return new ShopException(ShopExceptionCode.InvalidLinkToSite, $"linkToSite ({linkToSite}) does not represent a valid http/s address, use empty string if it does not have a link");
         }
 
         public static ShopException InvalidDescriptionException(string description)
@@ -41,7 +43,12 @@ namespace SpottedUnitn.Model.Exceptions
 
         public static ShopException InvalidCoverPictureException(byte[] coverPicture)
         {
-            return new ShopException(ShopExceptionCode.InvalidCoverPicture, "cover picture cannot be an empty array");
+            return new ShopException(ShopExceptionCode.InvalidCoverPicture, "cover picture cannot be null, use an empty array to specify no picture");
+        }
+
+        public static ShopException CannotCreateException(User user)
+        {
+            return new ShopException(ShopExceptionCode.CannotCreate, $"user (Id={user.Id}, Role={user.Role}) cannot add a new shop. Only admin can");
         }
     }
 }
