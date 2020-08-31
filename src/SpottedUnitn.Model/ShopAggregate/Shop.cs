@@ -16,13 +16,13 @@ namespace SpottedUnitn.Model.ShopAggregate
         private string name;
         public string Name => this.name;
 
-        private string linkToSite;
+        private string linkToSite = "";
         public string LinkToSite => this.linkToSite;
 
         private string description;
         public string Description => this.description;
 
-        private byte[] coverPicture;
+        private byte[] coverPicture = new byte[] { };
         public byte[] CoverPicture => this.coverPicture;
 
         private string discount;
