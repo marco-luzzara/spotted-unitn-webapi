@@ -133,7 +133,13 @@ paths:
               $ref: '#/components/schemas/UserLoginBody'
       responses:
         '200':
-          description: user logged in
+          description: user logged in, return jwt
+          content:
+            text/plain:
+              schema:
+                type: string
+        '403':
+          description: user not confirmed
         '400':
           description: bad request
           content:
@@ -299,7 +305,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Shop'
+                  $ref: '#/components/schemas/ShopSimple'
         '400':
           description: bad request
           content:
@@ -320,6 +326,12 @@ paths:
         - openId:
           - admin
       summary: add new shop
+      requestBody:
+        description: new shop
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopAddOrChange'
       responses:
         '201':
           description: shop added
@@ -384,7 +396,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Shop'
+              $ref: '#/components/schemas/ShopAddOrChange'
       responses:
         '200':
           description: shop data changed
@@ -439,11 +451,11 @@ paths:
     parameters:
       - $ref: "#/components/parameters/ShopIdParam"
       
-  /shops/{shop_id}/coverPhoto:
+  /shops/{shop_id}/coverPicture:
     get:
       tags:
       - shops
-      summary: get shop cover photo
+      summary: get shop cover picture
       parameters:
       - $ref: "#/components/parameters/ShopIdParam"
       responses:
@@ -533,25 +545,32 @@ components:
     User:
       type: object
       required:
+      - id
       - name
       - lastName
       - mail
+      - isConfirmed
       properties:
+        id:
+          type: integer
         name:
           type: string
         lastName:
           type: string
         mail:
           type: string
-          
-    Shop:
+        isConfirmed:
+          type: boolean
+    
+    ShopAddOrChange:
       type: object
       required:
       - name
-      - linkToWebsite
       - description
       - discountValue
       - address
+      - latitude
+      - longitude
       properties:
         name:
           type: string
@@ -563,6 +582,59 @@ components:
           type: string
         address:
           type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        coverPicture:
+          type: string
+          format: binary
+    
+    ShopSimple:
+      type: object
+      required:
+      - id
+      - name
+      - discountValue
+      - address
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        discountValue:
+          type: string
+        address:
+          type: string
+    
+    Shop:
+      type: object
+      required:
+      - id
+      - name
+      - linkToWebsite
+      - description
+      - discountValue
+      - address
+      - latitude
+      - longitude
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        linkToWebsite:
+          type: string
+        description:
+          type: string
+        discountValue:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
           
     UserException:
       properties:
