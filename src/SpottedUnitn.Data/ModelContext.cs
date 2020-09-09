@@ -66,11 +66,9 @@ namespace SpottedUnitn.Data
                         .HasMaxLength(72);
 
                     ownBuilder.Property(c => c.Mail)
-                        .HasColumnName("Credentials_Mail")
-                        .IsRequired();
-
-                    ownBuilder.HasIndex("Credentials_Mail")
-                        .IsUnique();
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(320)")
+                        .HasMaxLength(320);
                 });
         }
 
@@ -107,6 +105,29 @@ namespace SpottedUnitn.Data
                 .Property(u => u.Discount)
                 .HasField("discount")
                 .IsRequired();
+
+            modelBuilder.Entity<Shop>()
+                .OwnsOne(u => u.Location, ownBuilder =>
+                {
+                    ownBuilder.Property(c => c.Address)
+                        .IsRequired();
+
+                    ownBuilder.Property(c => c.City)
+                        .IsRequired();
+
+                    ownBuilder.Property(c => c.Province)
+                        .IsRequired();
+
+                    ownBuilder.Property(c => c.PostalCode)
+                        .HasMaxLength(16)
+                        .IsRequired();
+
+                    ownBuilder.Property(c => c.Latitude)
+                        .IsRequired();
+
+                    ownBuilder.Property(c => c.Longitude)
+                        .IsRequired();
+                });
         }
     }
 }

@@ -49,13 +49,13 @@ namespace SpottedUnitn.Model.UserAggregate
             this.profilePhoto = ValidateProfilePhoto(profilePhoto);
         }
 
-        public static User Create(string name, string lastName, string mail, string password, byte[] profilePhoto, UserRole role)
+        public static User Create(string name, string lastName, Credentials credentials, byte[] profilePhoto, UserRole role)
         {
             var user = new User();
 
             user.SetName(name);
             user.SetLastName(lastName);
-            user.credentials = Credentials.Create(mail, password);
+            user.credentials = credentials;
             user.SetProfilePhoto(profilePhoto);
             user.subscriptionDate = null;
             user.role = role;

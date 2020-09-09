@@ -1,5 +1,6 @@
 ﻿using SpottedUnitn.Infrastructure.Validation;
 using SpottedUnitn.Model.Exceptions;
+using SpottedUnitn.Model.ShopAggregate.ValueObjects;
 using SpottedUnitn.Model.UserAggregate;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,9 @@ namespace SpottedUnitn.Model.ShopAggregate
         private string description;
         public string Description => this.description;
 
+        private Location location;
+        public Location Location => this.location;
+
         private byte[] coverPicture = new byte[] { };
         public byte[] CoverPicture => this.coverPicture;
 
@@ -32,13 +36,14 @@ namespace SpottedUnitn.Model.ShopAggregate
         {
         }
 
-        public static Shop Create(string name, string description, string discount)
+        public static Shop Create(string name, string description, string discount, Location location)
         {
             var shop = new Shop();
 
             shop.SetName(name);
             shop.SetDescription(description);
             shop.SetDiscount(discount);
+            shop.location = location;
             shop.coverPicture = null;
             shop.linkToSite = null;
 
@@ -73,7 +78,7 @@ namespace SpottedUnitn.Model.ShopAggregate
         private static string ValidateName(string name)
         {
             if (string.IsNullOrEmpty(name))
-                throw UserException.InvalidNameException(name);
+                throw ShopException.InvalidNameException(name);
 
             return name;
         }

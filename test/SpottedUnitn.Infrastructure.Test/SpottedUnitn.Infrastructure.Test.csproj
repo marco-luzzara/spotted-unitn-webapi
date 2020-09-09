@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\SpottedUnitn.Infrastructure\SpottedUnitn.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\SpottedUnitn.Model\SpottedUnitn.Model.csproj" />
   </ItemGroup>
 
 </Project>

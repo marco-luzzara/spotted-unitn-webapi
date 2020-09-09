@@ -3,6 +3,7 @@ using SpottedUnitn.Infrastructure.Services;
 using SpottedUnitn.Infrastructure.Test.Mocks.Services;
 using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Model.UserAggregate;
+using SpottedUnitn.Model.UserAggregate.ValueObjects;
 using System;
 using System.Collections.Generic;
 
@@ -11,12 +12,13 @@ namespace SpottedUnitn.Model.Test
     [TestClass]
     public class UserTest
     {
-        private const string VALID_NAME = "myname";
-        private const string VALID_LASTNAME = "mylastname";
-        private const string VALID_MAIL = "name.lastname@gmail.com";
-        private const string VALID_PASSWORD = "123abcABC";
-        private const User.UserRole VALID_USERROLE = User.UserRole.Admin;
-        private static readonly byte[] VALID_PROFILEPHOTO = { 0x00, 0x01, 0x02 };
+        public const string VALID_NAME = "myname";
+        public const string VALID_LASTNAME = "mylastname";
+        public const string VALID_MAIL = "name.lastname@gmail.com";
+        public const string VALID_PASSWORD = "123abcABC";
+        public static readonly Credentials VALID_CREDENTIALS = Credentials.Create(VALID_MAIL, VALID_PASSWORD);
+        public const User.UserRole VALID_USERROLE = User.UserRole.Admin;
+        public static readonly byte[] VALID_PROFILEPHOTO = { 0x00, 0x01, 0x02 };
 
         [DataTestMethod]
         [DataRow(null, false)]
@@ -28,7 +30,7 @@ namespace SpottedUnitn.Model.Test
             User user = null;
             try
             {
-                user = User.Create(name, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, VALID_USERROLE);
+                user = User.Create(name, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, VALID_USERROLE);
             }
             catch (UserException exc) when (exc.Code == (int) UserException.UserExceptionCode.InvalidName)
             {
@@ -50,7 +52,7 @@ namespace SpottedUnitn.Model.Test
             User user = null;
             try
             {
-                user = User.Create(VALID_NAME, lastName, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, VALID_USERROLE);
+                user = User.Create(VALID_NAME, lastName, VALID_CREDENTIALS, VALID_PROFILEPHOTO, VALID_USERROLE);
             }
             catch (UserException exc) when (exc.Code == (int)UserException.UserExceptionCode.InvalidLastName)
             {
@@ -67,13 +69,13 @@ namespace SpottedUnitn.Model.Test
         [DataRow("", false)]
         [DataRow("teststring", false)]
         [DataRow(VALID_MAIL, true)]
-        public void Create_MailValidation(string mail, bool isValid)
+        public void CredendialsCreate_MailValidation(string mail, bool isValid)
         {
             var validationPassed = true;
-            User user = null;
+            Credentials creds = null;
             try
             {
-                user = User.Create(VALID_NAME, VALID_LASTNAME, mail, VALID_PASSWORD, VALID_PROFILEPHOTO, VALID_USERROLE);
+                creds = Credentials.Create(mail, VALID_PASSWORD);
             }
             catch (UserException exc) when (exc.Code == (int)UserException.UserExceptionCode.InvalidMail)
             {
@@ -82,7 +84,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.AreEqual(mail, user.Credentials.Mail);
+                Assert.AreEqual(mail, creds.Mail);
         }
 
         [DataTestMethod]
@@ -93,13 +95,13 @@ namespace SpottedUnitn.Model.Test
         [DataRow("N0TLOWERCASE", false)]
         [DataRow("NoTnumbers", false)]
         [DataRow(VALID_PASSWORD, true)]
-        public void Create_PasswordValidation(string password, bool isValid)
+        public void CredentialsCreate_PasswordValidation(string password, bool isValid)
         {
             var validationPassed = true;
-            User user = null;
+            Credentials creds = null;
             try
             {
-                user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, password, VALID_PROFILEPHOTO, VALID_USERROLE);
+                creds = Credentials.Create(VALID_MAIL, password);
             }
             catch (UserException exc) when (exc.Code == (int)UserException.UserExceptionCode.InvalidPassword)
             {
@@ -108,7 +110,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.IsNotNull(user.Credentials.HashedPwd);
+                Assert.IsNotNull(creds.HashedPwd);
         }
 
         public static IEnumerable<object[]> GetDataRow_ProfilePhotoValidation()
@@ -126,7 +128,7 @@ namespace SpottedUnitn.Model.Test
             User user = null;
             try
             {
-                user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, profilePhoto, VALID_USERROLE);
+                user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, profilePhoto, VALID_USERROLE);
             }
             catch (UserException exc) when (exc.Code == (int)UserException.UserExceptionCode.InvalidProfilePhoto)
             {
@@ -145,7 +147,7 @@ namespace SpottedUnitn.Model.Test
         public void SetName_ValidationCheck(string name, bool isValid)
         {
             var validationPassed = true;
-            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, VALID_USERROLE);
+            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, VALID_USERROLE);
             try
             {
                 user.SetName(name);
@@ -167,7 +169,7 @@ namespace SpottedUnitn.Model.Test
         public void SetLastName_ValidationCheck(string lastName, bool isValid)
         {
             var validationPassed = true;
-            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, VALID_USERROLE);
+            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, VALID_USERROLE);
             try
             {
                 user.SetLastName(lastName);
@@ -187,7 +189,7 @@ namespace SpottedUnitn.Model.Test
         public void SetProfilePhoto_ValidationCheck(byte[] profilePhoto, bool isValid)
         {
             var validationPassed = true;
-            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, VALID_USERROLE);
+            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, VALID_USERROLE);
             try
             {
                 user.SetProfilePhoto(profilePhoto);
@@ -208,7 +210,7 @@ namespace SpottedUnitn.Model.Test
         [DataRow(User.UserRole.Registered, false, true)]
         public void ChangeRegistrationToConfirmed_VerifyUserAllowed(User.UserRole confirmedUserRole, bool confirmTwice, bool canConfirm)
         {
-            var confirmedUser = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, confirmedUserRole);
+            var confirmedUser = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, confirmedUserRole);
 
             var now = DateTimeOffset.Now;
             var dateTimeOffsetService = new DateTimeOffsetServiceMock(now);
@@ -237,17 +239,17 @@ namespace SpottedUnitn.Model.Test
             var dtoServiceMock = new DateTimeOffsetServiceMock(invalidSubscriptionDate);
             var dtoService = new DateTimeOffsetService();
 
-            var admin = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Admin);
+            var admin = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, User.UserRole.Admin);
             yield return new object[] { admin, dtoService, true };
 
-            var registeredExpired = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Registered);
+            var registeredExpired = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, User.UserRole.Registered);
             registeredExpired.ChangeRegistrationToConfirmed(dtoService);
             yield return new object[] { registeredExpired, dtoServiceMock, false };
 
-            var registeredUnconfirmed = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Registered);
+            var registeredUnconfirmed = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, User.UserRole.Registered);
             yield return new object[] { registeredUnconfirmed, dtoService ,false };
 
-            var registeredValid = User.Create(VALID_NAME, VALID_LASTNAME, VALID_MAIL, VALID_PASSWORD, VALID_PROFILEPHOTO, User.UserRole.Registered);
+            var registeredValid = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, User.UserRole.Registered);
             registeredValid.ChangeRegistrationToConfirmed(dtoService);
             yield return new object[] { registeredValid, dtoService, true };
         }

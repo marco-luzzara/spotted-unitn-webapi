@@ -9,8 +9,8 @@ namespace SpottedUnitn.Infrastructure.Test
         [DataTestMethod]
         [DataRow("", false)]
         [DataRow(null, false)]
-        [DataRow("www.google.com", false)]
         [DataRow("http://test", false)]
+        [DataRow("www.google.com", true)]
         [DataRow("http://test.com", true)]
         [DataRow("https://test.test2.com", true)]
         public void IsValid_Test(string url, bool expectedIsValid)
