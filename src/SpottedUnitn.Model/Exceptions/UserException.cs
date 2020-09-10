@@ -20,7 +20,8 @@ namespace SpottedUnitn.Model.Exceptions
             InvalidProfilePhoto,
             CannotConfirmRegistration,
             WrongCredentials,
-            UserNotConfirmed
+            UserNotConfirmed,
+            UserIdNotFound
         }
 
         public static UserException InvalidNameException(string name)
@@ -61,6 +62,11 @@ namespace SpottedUnitn.Model.Exceptions
         public static UserException UserNotConfirmedException(int id)
         {
             return new UserException(UserExceptionCode.UserNotConfirmed, $"user (Id={id}) has not been confirmed");
+        }
+
+        public static UserException UserIdNotFoundException(int id)
+        {
+            return new UserException(UserExceptionCode.UserIdNotFound, $"user (Id={id}) does not exist");
         }
     }
 }

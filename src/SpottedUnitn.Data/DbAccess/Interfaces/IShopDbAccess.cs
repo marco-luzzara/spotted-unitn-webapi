@@ -1,13 +1,8 @@
-﻿using SpottedUnitn.Data.DbAccess.Interfaces;
-using SpottedUnitn.Model.ShopAggregate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using SpottedUnitn.Model.ShopAggregate;
 
 namespace SpottedUnitn.Data.DbAccess
 {
-    public interface IShopDbAccess : IEntityDbAccess<Shop>
+    public interface IShopDbAccess
     {
     }
 }

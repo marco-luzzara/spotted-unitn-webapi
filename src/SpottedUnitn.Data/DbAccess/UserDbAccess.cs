@@ -1,4 +1,6 @@
-﻿using SpottedUnitn.Data.Dto.User;
+﻿using Microsoft.EntityFrameworkCore;
+using SpottedUnitn.Data.Dto.User;
+using SpottedUnitn.Infrastructure.Services;
 using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Model.UserAggregate;
 using SpottedUnitn.Model.UserAggregate.ValueObjects;
@@ -12,35 +14,68 @@ namespace SpottedUnitn.Data.DbAccess
 {
     public class UserDbAccess : EntityDbAccess<User>, IUserDbAccess
     {
-        public UserDbAccess(ModelContext modelContext) : base(modelContext)
+        public UserDbAccess(ModelContext modelContext, IDateTimeOffsetService dtoService) : base(modelContext, dtoService)
         {
         }
 
-        public async Task ConfirmUserRegistration(User user)
+        public async Task<User> AddUserAsync(User user)
         {
-            throw new NotImplementedException();
+            if (user == null)
+                throw new ArgumentNullException("user cannot be null");
+
+            await this.modelContext.AddAsync(user);
+            await this.modelContext.SaveChangesAsync();
+
+            return user;
         }
 
-        public async Task<List<User>> GetAllUserUnconfirmedFirst()
+        public async Task ConfirmUserRegistrationAsync(int id)
         {
-            throw new NotImplementedException();
+            var user = await this.modelContext.Users.FindAsync(id);
+
+            if (user == null)
+                throw UserException.UserIdNotFoundException(id);
+
+            user.ChangeRegistrationToConfirmed(this.dtoService);
+            await this.modelContext.SaveChangesAsync();
         }
 
-        public async Task<LoggedInUser> Login(Credentials credentials)
+        public async Task<List<UserBasicInfo>> GetRegisteredUsersUnconfirmedFirstAsync(int upperLimit)
         {
-            var loggedUserData = this.modelContext.Users
+            if (upperLimit <= 0)
+                throw new ArgumentOutOfRangeException("upperLimit must be greater than 0");
+
+            var users = this.modelContext.Users
+                .Where(u => u.Role == User.UserRole.Registered)
+                .OrderBy(u => u.SubscriptionDate.HasValue)
+                .Take(upperLimit)
+                .Select(u => new UserBasicInfo()
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    LastName = u.LastName,
+                    Mail = u.Credentials.Mail,
+                    IsConfirmed = u.IsSubscriptionValid(this.dtoService)
+                }).AsNoTracking();
+
+            return await users.ToListAsync();
+        }
+
+        public async Task<LoggedInUser> LoginAsync(Credentials credentials)
+        {
+            var loggedUserData = await this.modelContext.Users
                 .Where(u => u.Credentials.Mail == credentials.Mail && u.Credentials.HashedPwd == credentials.HashedPwd)
                 .Select(u => new
                 {
-                    Id = u.Id,
-                    Role = u.Role,
+                    u.Id,
+                    u.Role,
                     IsConfirmed = u.SubscriptionDate != null
-                }).FirstOrDefault();
+                }).AsNoTracking().FirstOrDefaultAsync();
 
             if (loggedUserData == null)
                 throw UserException.WrongCredentialsException(credentials.Mail, credentials.HashedPwd);
 
-            if (!loggedUserData.IsConfirmed)
+            if (loggedUserData.Role == User.UserRole.Registered && !loggedUserData.IsConfirmed)
                 throw UserException.UserNotConfirmedException(loggedUserData.Id);
 
             return new LoggedInUser()

@@ -1,5 +1,4 @@
-﻿using SpottedUnitn.Data.DbAccess.Interfaces;
-using SpottedUnitn.Data.Dto.User;
+﻿using SpottedUnitn.Data.Dto.User;
 using SpottedUnitn.Model.UserAggregate;
 using SpottedUnitn.Model.UserAggregate.ValueObjects;
 using System;
@@ -9,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace SpottedUnitn.Data.DbAccess
 {
-    public interface IUserDbAccess : IEntityDbAccess<User>
+    public interface IUserDbAccess
     {
-        Task<List<User>> GetAllUserUnconfirmedFirst();
+        Task<User> AddUserAsync(User user);
 
-        Task ConfirmUserRegistration(User user);
+        Task<List<UserBasicInfo>> GetRegisteredUsersUnconfirmedFirstAsync(int upperLimit);
 
-        Task<LoggedInUser> Login(Credentials credentials);
+        Task ConfirmUserRegistrationAsync(int id);
+
+        Task<LoggedInUser> LoginAsync(Credentials credentials);
     }
 }
