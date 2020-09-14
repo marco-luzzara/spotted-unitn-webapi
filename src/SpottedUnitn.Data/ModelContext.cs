@@ -43,11 +43,6 @@ namespace SpottedUnitn.Data
                 .IsRequired();
 
             modelBuilder.Entity<User>()
-                .Property(u => u.ProfilePhoto)
-                .HasField("profilePhoto")
-                .IsRequired();
-
-            modelBuilder.Entity<User>()
                 .Property(u => u.SubscriptionDate)
                 .HasField("subscriptionDate");
 
@@ -70,44 +65,55 @@ namespace SpottedUnitn.Data
                         .HasColumnType("NVARCHAR(320)")
                         .HasMaxLength(320);
                 });
+
+            modelBuilder.Entity<User>()
+                .OwnsOne(u => u.ProfilePhoto, builder =>
+                {
+                    builder.ToTable("UserProfilePhoto");
+
+                    builder.Property(u => u.ProfilePhoto)
+                        .IsRequired();
+                });
         }
 
         protected void OnShopModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Shop>()
-                .HasKey(u => u.Id);
+                .HasKey(s => s.Id);
 
             modelBuilder.Entity<Shop>()
-                .Property(u => u.Id)
+                .Property(s => s.Id)
                 .HasField("id");
 
             modelBuilder.Entity<Shop>()
-                .Property(u => u.Name)
+                .Property(s => s.Name)
                 .HasField("name")
                 .IsRequired();
 
             modelBuilder.Entity<Shop>()
-                .Property(u => u.Description)
+                .Property(s => s.Description)
                 .HasField("description")
                 .IsRequired();
 
             modelBuilder.Entity<Shop>()
-                .Property(u => u.LinkToSite)
+                .Property(s => s.LinkToSite)
                 .HasField("linkToSite")
                 .HasDefaultValue("");
 
             modelBuilder.Entity<Shop>()
-                .Property(u => u.CoverPicture)
-                .HasField("coverPicture")
-                .HasDefaultValue(new byte[] { });
-
-            modelBuilder.Entity<Shop>()
-                .Property(u => u.Discount)
+                .Property(s => s.Discount)
                 .HasField("discount")
                 .IsRequired();
 
             modelBuilder.Entity<Shop>()
-                .OwnsOne(u => u.Location, ownBuilder =>
+                .Property(s => s.PhoneNumber)
+                .HasField("phoneNumber")
+                .HasColumnType("VARCHAR(15)")
+                .HasMaxLength(15)
+                .HasDefaultValue("");
+
+            modelBuilder.Entity<Shop>()
+                .OwnsOne(s => s.Location, ownBuilder =>
                 {
                     ownBuilder.Property(c => c.Address)
                         .IsRequired();
@@ -126,6 +132,16 @@ namespace SpottedUnitn.Data
                         .IsRequired();
 
                     ownBuilder.Property(c => c.Longitude)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity<Shop>()
+                .OwnsOne(s => s.CoverPicture, builder =>
+                {
+                    builder.ToTable("ShopCoverPicture");
+
+                    builder.Property(s => s.CoverPicture)
+                        .HasDefaultValue(new byte[] { })
                         .IsRequired();
                 });
         }

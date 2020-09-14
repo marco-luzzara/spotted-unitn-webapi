@@ -24,11 +24,13 @@ namespace SpottedUnitn.Model.UserAggregate
         private Credentials credentials;
         public Credentials Credentials => this.credentials;
 
-        private byte[] profilePhoto;
-        public byte[] ProfilePhoto => this.profilePhoto;
+        private UserProfilePhoto profilePhoto;
+        public UserProfilePhoto ProfilePhoto => this.profilePhoto;
 
         private DateTimeOffset? subscriptionDate;
         public DateTimeOffset? SubscriptionDate => this.subscriptionDate;
+
+        private const int SUBSCRIPTION_VALIDITY_DAYS = 365;
 
         private User()
         {
@@ -44,11 +46,6 @@ namespace SpottedUnitn.Model.UserAggregate
             this.lastName = ValidateLastName(lastName);
         }
 
-        public void SetProfilePhoto(byte[] profilePhoto)
-        {
-            this.profilePhoto = ValidateProfilePhoto(profilePhoto);
-        }
-
         public static User Create(string name, string lastName, Credentials credentials, byte[] profilePhoto, UserRole role)
         {
             var user = new User();
@@ -56,11 +53,16 @@ namespace SpottedUnitn.Model.UserAggregate
             user.SetName(name);
             user.SetLastName(lastName);
             user.credentials = credentials;
-            user.SetProfilePhoto(profilePhoto);
+            user.profilePhoto = new UserProfilePhoto(profilePhoto);
             user.subscriptionDate = null;
             user.role = role;
 
             return user;
+        }
+
+        public void SetProfilePhoto(byte[] profilePhoto)
+        {
+            this.profilePhoto = new UserProfilePhoto(profilePhoto);
         }
 
         private static string ValidateName(string name)
@@ -79,14 +81,6 @@ namespace SpottedUnitn.Model.UserAggregate
             return lastName;
         }
 
-        private static byte[] ValidateProfilePhoto(byte[] profilePhoto)
-        {
-            if ((profilePhoto?.Length ?? 0) == 0)
-                throw UserException.InvalidProfilePhotoException(profilePhoto);
-
-            return profilePhoto;
-        }
-
         public void ChangeRegistrationToConfirmed(IDateTimeOffsetService dtoService)
         {
             if (this.Role == UserRole.Registered && this.subscriptionDate == null)
@@ -98,7 +92,22 @@ namespace SpottedUnitn.Model.UserAggregate
         public bool IsSubscriptionValid(IDateTimeOffsetService dtoService)
         {
             return this.role == UserRole.Admin || 
-                (this.subscriptionDate != null && this.subscriptionDate >= dtoService.Now - TimeSpan.FromDays(365));
+                (this.subscriptionDate != null && dtoService.Now <= this.GetSubscriptionExpiredDate());
+        }
+
+        public DateTimeOffset? GetSubscriptionExpiredDate()
+        {
+            switch (this.role)
+            {
+                case UserRole.Admin:
+                    return null;
+                case UserRole.Registered:
+                    if (subscriptionDate == null)
+                        throw UserException.UserNotConfirmedException(this.id);
+                    return this.subscriptionDate + TimeSpan.FromDays(SUBSCRIPTION_VALIDITY_DAYS);
+                default:
+                    throw new InvalidOperationException("missing role");
+            }
         }
 
         public enum UserRole

@@ -40,6 +40,17 @@ namespace SpottedUnitn.Data.DbAccess
             await this.modelContext.SaveChangesAsync();
         }
 
+        public async Task DeleteUserAsync(int id)
+        {
+            var user = await this.modelContext.Users.FindAsync(id);
+
+            if (user == null)
+                throw UserException.UserIdNotFoundException(id);
+
+            this.modelContext.Users.Remove(user);
+            await this.modelContext.SaveChangesAsync();
+        }
+
         public async Task<List<UserBasicInfo>> GetRegisteredUsersUnconfirmedFirstAsync(int upperLimit)
         {
             if (upperLimit <= 0)
@@ -59,6 +70,33 @@ namespace SpottedUnitn.Data.DbAccess
                 }).AsNoTracking();
 
             return await users.ToListAsync();
+        }
+
+        public async Task<UserBasicInfo> GetUserInfoAsync(int id)
+        {
+            var user = await this.modelContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                throw UserException.UserIdNotFoundException(id);
+
+            return new UserBasicInfo()
+            {
+                Id = user.Id,
+                Name = user.Name,
+                LastName = user.LastName,
+                Mail = user.Credentials.Mail,
+                IsConfirmed = user.IsSubscriptionValid(this.dtoService)
+            };
+        }
+
+        public async Task<byte[]> GetUserProfilePhotoAsync(int id)
+        {
+            var user = await this.modelContext.Users.FindAsync(id);
+
+            if (user == null)
+                throw UserException.UserIdNotFoundException(id);
+
+            return user.ProfilePhoto.ProfilePhoto;
         }
 
         public async Task<LoggedInUser> LoginAsync(Credentials credentials)

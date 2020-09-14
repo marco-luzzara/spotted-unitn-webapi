@@ -22,6 +22,7 @@ namespace SpottedUnitn.Model.Test
         private const string VALID_POSTALCODE = "40000";
         private const float VALID_LATITUDE = 0;
         private const float VALID_LONGITUDE = 0;
+        private const string VALID_PHONE_NUMBER = "3334445556";
         private static readonly Location VALID_LOCATION = Location.Create(VALID_ADDRESS, VALID_CITY, VALID_PROVINCE, VALID_POSTALCODE, VALID_LATITUDE, VALID_LONGITUDE);
         private static readonly byte[] VALID_COVERPICTURE = { 0x00, 0x01, 0x02 };
 
@@ -291,7 +292,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.AreEqual(coverPicture, shop.CoverPicture);
+                Assert.AreEqual(coverPicture, shop.CoverPicture.CoverPicture);
         }
 
         [DataTestMethod]
@@ -337,6 +338,29 @@ namespace SpottedUnitn.Model.Test
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
                 Assert.AreEqual(discount, shop.Discount);
+        }
+
+        [DataTestMethod]
+        [DataRow(null, false)]
+        [DataRow("123aa345", false)]
+        [DataRow("", true)]
+        [DataRow(VALID_PHONE_NUMBER, true)]
+        public void SetPhoneNumber_ValidationCheck(string phoneNumber, bool isValid)
+        {
+            var validationPassed = true;
+            Shop shop = Shop.Create(VALID_NAME, VALID_DESCRIPTION, VALID_DISCOUNT, VALID_LOCATION);
+            try
+            {
+                shop.SetPhoneNumber(phoneNumber);
+            }
+            catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.InvalidPhoneNumber)
+            {
+                validationPassed = false;
+            }
+
+            Assert.AreEqual(isValid, validationPassed);
+            if (isValid)
+                Assert.AreEqual(phoneNumber, shop.PhoneNumber);
         }
     }
 }

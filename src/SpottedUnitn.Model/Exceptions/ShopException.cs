@@ -24,6 +24,7 @@ namespace SpottedUnitn.Model.Exceptions
             InvalidLocationPostalCode,
             InvalidLocationLatitude,
             InvalidLocationLongitude,
+            InvalidPhoneNumber,
             CannotCreate
         }
 
@@ -85,6 +86,11 @@ namespace SpottedUnitn.Model.Exceptions
         public static ShopException InvalidLocationLongitudineException(float longitude)
         {
             return new ShopException(ShopExceptionCode.InvalidLocationLongitude, $"longitude must be in the range [-180, 180]");
+        }
+
+        public static ShopException InvalidPhoneNumberException(string phoneNumber)
+        {
+            return new ShopException(ShopExceptionCode.InvalidPhoneNumber, $"phone number {phoneNumber} cannot contain letters, accepted this format +(123) - 456-78-90");
         }
     }
 }

@@ -19,7 +19,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
     [TestClass]
     public class IT_UserDbAccessTest : EntityDbAccessTest
     {
-        protected UserDbAccess GetDbAccessInstance(ModelContext ctx)
+        protected IUserDbAccess GetDbAccessInstance(ModelContext ctx)
         {
             var dbAccess = new UserDbAccess(ctx, this.dtoService);
             return dbAccess;
@@ -63,7 +63,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
         {
             var loggedUser = await LoginAsync_CredentialsTest(
                 builder, 
-                Credentials.Create(DataGenerator.GenerateMail(), UserTest.VALID_PASSWORD), 
+                Credentials.Create(DataGenerator.GenerateMail(), UserUtils.VALID_PASSWORD), 
                 User.UserRole.Registered);
         }
 
@@ -74,7 +74,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
         {
             var loggedUser = await LoginAsync_CredentialsTest(
                 builder, 
-                Credentials.Create(UserTest.VALID_MAIL, UserTest.VALID_PASSWORD + "1"),
+                Credentials.Create(UserUtils.VALID_MAIL, UserUtils.VALID_PASSWORD + "1"),
                 User.UserRole.Registered);
         }
 
@@ -100,7 +100,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
         {
             var loggedUser = await LoginAsync_CredentialsTest(
                 builder, 
-                Credentials.Create(DataGenerator.GenerateMail(), UserTest.VALID_PASSWORD), 
+                Credentials.Create(DataGenerator.GenerateMail(), UserUtils.VALID_PASSWORD), 
                 User.UserRole.Admin,
                 false);
         }
@@ -112,7 +112,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
         {
             var loggedUser = await LoginAsync_CredentialsTest(
                 builder, 
-                Credentials.Create(UserTest.VALID_MAIL, UserTest.VALID_PASSWORD + "1"), 
+                Credentials.Create(UserUtils.VALID_MAIL, UserUtils.VALID_PASSWORD + "1"), 
                 User.UserRole.Admin,
                 false);
         }
@@ -242,6 +242,127 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             var dbAccess = GetDbAccessInstance(ctx);
 
             await dbAccess.AddUserAsync(null);
+        }
+        #endregion
+
+        #region GetUserInfoAsync
+        [DataTestMethod]
+        [DbContextDataSource]
+        public async Task GetUserInfoAsync_Ok(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+            var user = UserUtils.GenerateUser();
+
+            try
+            {
+                await ctx.Users.AddAsync(user);
+                await ctx.SaveChangesAsync();
+
+                var userInfo = await dbAccess.GetUserInfoAsync(user.Id);
+
+                Assert.AreEqual(user.Id, userInfo.Id);
+                Assert.AreEqual(false, userInfo.IsConfirmed);
+                Assert.AreEqual(user.Name, userInfo.Name);
+                Assert.AreEqual(user.LastName, userInfo.LastName);
+                Assert.AreEqual(user.Credentials.Mail, userInfo.Mail);
+            }
+            finally
+            {
+                ctx.Users.Remove(user);
+                await ctx.SaveChangesAsync();
+            }
+        }
+
+        [DataTestMethod]
+        [DbContextDataSource]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.UserIdNotFound)]
+        public async Task GetUserInfoAsync_IdNotFound_Throw(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+
+            var userInfo = await dbAccess.GetUserInfoAsync(int.MaxValue);
+        }
+        #endregion
+
+        #region DeleteUserAsync
+        [DataTestMethod]
+        [DbContextDataSource]
+        public async Task DeleteUserAsync_Ok(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+            var user = UserUtils.GenerateUser();
+            int userId = -1;
+
+            try
+            {
+                await ctx.Users.AddAsync(user);
+                await ctx.SaveChangesAsync();
+                userId = user.Id;
+
+                await dbAccess.DeleteUserAsync(userId);
+
+                Assert.IsNull(await ctx.Users.FindAsync(userId));
+            }
+            finally
+            {
+                User delUser;
+                if ((delUser = await ctx.Users.FindAsync(userId)) != null)
+                {
+                    ctx.Users.Remove(delUser);
+                    await ctx.SaveChangesAsync();
+                }
+            }
+        }
+
+        [DataTestMethod]
+        [DbContextDataSource]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.UserIdNotFound)]
+        public async Task DeleteUserAsync_IdNotFound_Throw(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+
+            await dbAccess.DeleteUserAsync(int.MaxValue);
+        }
+        #endregion
+
+        #region GetUserProfilePhotoAsync
+        [DataTestMethod]
+        [DbContextDataSource]
+        public async Task GetUserProfilePhotoAsync_Ok(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+            var user = UserUtils.GenerateUser();
+
+            try
+            {
+                await ctx.Users.AddAsync(user);
+                await ctx.SaveChangesAsync();
+
+                var profilePhoto = await dbAccess.GetUserProfilePhotoAsync(user.Id);
+
+                CollectionAssert.AreEqual(UserUtils.VALID_PROFILEPHOTO, profilePhoto);
+            }
+            finally
+            {
+                ctx.Users.Remove(user);
+                await ctx.SaveChangesAsync();
+            }
+        }
+
+        [DataTestMethod]
+        [DbContextDataSource]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.UserIdNotFound)]
+        public async Task GetUserProfilePhotoAsync_IdNotFound_Throw(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+
+            await dbAccess.GetUserProfilePhotoAsync(int.MaxValue);
         }
         #endregion
     }

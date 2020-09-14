@@ -17,5 +17,11 @@ namespace SpottedUnitn.Data.DbAccess
         Task ConfirmUserRegistrationAsync(int id);
 
         Task<LoggedInUser> LoginAsync(Credentials credentials);
+
+        Task<UserBasicInfo> GetUserInfoAsync(int id);
+
+        Task DeleteUserAsync(int id);
+
+        Task<byte[]> GetUserProfilePhotoAsync(int id);
     }
 }

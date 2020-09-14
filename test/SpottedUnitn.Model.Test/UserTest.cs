@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpottedUnitn.Infrastructure.Services;
 using SpottedUnitn.Infrastructure.Test.Mocks.Services;
+using SpottedUnitn.Infrastructure.Test.TestingUtility;
 using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Model.UserAggregate;
 using SpottedUnitn.Model.UserAggregate.ValueObjects;
@@ -137,7 +138,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.AreEqual(profilePhoto, user.ProfilePhoto);
+                Assert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
         }
 
         [DataTestMethod]
@@ -201,7 +202,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.AreEqual(profilePhoto, user.ProfilePhoto);
+                Assert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
         }
 
         [DataTestMethod]
@@ -261,6 +262,40 @@ namespace SpottedUnitn.Model.Test
             var isSubscriptionValid = user.IsSubscriptionValid(dtoService);
 
             Assert.AreEqual(isValid, isSubscriptionValid);
+        }
+
+        [TestMethod]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.UserNotConfirmed)]
+        public void GetSubscriptionExpiredDate_UserNotConfirmed_Throw()
+        {
+            var user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, User.UserRole.Registered);
+
+            var expireDate = user.GetSubscriptionExpiredDate();
+        }
+
+        [DataTestMethod]
+        [DataRow(User.UserRole.Registered)]
+        [DataRow(User.UserRole.Admin)]
+        public void GetSubscriptionExpiredDate_Ok(User.UserRole role)
+        {
+            var user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, role);
+            var dtoService = new DateTimeOffsetServiceMock(DateTimeOffset.Now);
+            if (role == User.UserRole.Registered)
+                user.ChangeRegistrationToConfirmed(dtoService);
+
+            var expireDate = user.GetSubscriptionExpiredDate();
+
+            switch (role)
+            {
+                case User.UserRole.Registered:
+                    Assert.IsTrue(expireDate == dtoService.Now + TimeSpan.FromDays(365));
+                    break;
+                case User.UserRole.Admin:
+                    Assert.IsNull(expireDate);
+                    break;
+                default:
+                    throw new InvalidOperationException("missing role");
+            }
         }
     }
 }

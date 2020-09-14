@@ -26,11 +26,14 @@ namespace SpottedUnitn.Model.ShopAggregate
         private Location location;
         public Location Location => this.location;
 
-        private byte[] coverPicture = new byte[] { };
-        public byte[] CoverPicture => this.coverPicture;
+        private ShopCoverPicture coverPicture;
+        public ShopCoverPicture CoverPicture => this.coverPicture;
 
         private string discount;
         public string Discount => this.discount;
+
+        private string phoneNumber = "";
+        public string PhoneNumber => this.phoneNumber;
 
         private Shop()
         {
@@ -44,8 +47,9 @@ namespace SpottedUnitn.Model.ShopAggregate
             shop.SetDescription(description);
             shop.SetDiscount(discount);
             shop.location = location;
-            shop.coverPicture = null;
-            shop.linkToSite = null;
+            shop.coverPicture = new ShopCoverPicture(new byte[] { });
+            shop.linkToSite = "";
+            shop.phoneNumber = "";
 
             return shop;
         }
@@ -67,12 +71,17 @@ namespace SpottedUnitn.Model.ShopAggregate
 
         public void SetCoverPicture(byte[] coverPicture)
         {
-            this.coverPicture = ValidateCoverPicture(coverPicture);
+            this.coverPicture = new ShopCoverPicture(coverPicture);
         }
 
         public void SetDiscount(string discount)
         {
             this.discount = ValidateDiscount(discount);
+        }
+
+        public void SetPhoneNumber(string phoneNumber)
+        {
+            this.phoneNumber = ValidatePhoneNumber(phoneNumber);
         }
 
         private static string ValidateName(string name)
@@ -102,20 +111,23 @@ namespace SpottedUnitn.Model.ShopAggregate
             return linkToSite;
         }
 
-        private static byte[] ValidateCoverPicture(byte[] coverPicture)
-        {
-            if (coverPicture == null)
-                throw ShopException.InvalidCoverPictureException(coverPicture);
-
-            return coverPicture;
-        }
-
         private static string ValidateDiscount(string discount)
         {
             if (string.IsNullOrEmpty(discount))
                 throw ShopException.InvalidDiscountException(discount);
 
             return discount;
+        }
+
+        private static string ValidatePhoneNumber(string phoneNumber)
+        {
+            if (phoneNumber == "")
+                return phoneNumber;
+
+            if (!PhoneNumberValidation.IsValid(phoneNumber))
+                throw ShopException.InvalidPhoneNumberException(phoneNumber);
+
+            return phoneNumber;
         }
     }
 }
