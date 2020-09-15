@@ -22,17 +22,16 @@ namespace SpottedUnitn.Model.UserAggregate
         public string LastName => this.lastName;
 
         private Credentials credentials;
-        public Credentials Credentials => this.credentials;
+        public virtual Credentials Credentials => this.credentials;
 
-        private UserProfilePhoto profilePhoto;
-        public UserProfilePhoto ProfilePhoto => this.profilePhoto;
+        public virtual UserProfilePhoto ProfilePhoto { get; private set; }
 
         private DateTimeOffset? subscriptionDate;
         public DateTimeOffset? SubscriptionDate => this.subscriptionDate;
 
         private const int SUBSCRIPTION_VALIDITY_DAYS = 365;
 
-        private User()
+        protected User()
         {
         }
 
@@ -52,17 +51,25 @@ namespace SpottedUnitn.Model.UserAggregate
 
             user.SetName(name);
             user.SetLastName(lastName);
-            user.credentials = credentials;
-            user.profilePhoto = new UserProfilePhoto(profilePhoto);
+            user.SetCredentials(credentials);
+            user.ProfilePhoto = new UserProfilePhoto(profilePhoto);
             user.subscriptionDate = null;
             user.role = role;
 
             return user;
         }
 
+        public void SetCredentials(Credentials credentials)
+        {
+            if (credentials == null)
+                throw new ArgumentNullException("credentials cannot be null");
+
+            this.credentials = credentials;
+        }
+
         public void SetProfilePhoto(byte[] profilePhoto)
         {
-            this.profilePhoto = new UserProfilePhoto(profilePhoto);
+            this.ProfilePhoto.SetProfilePhoto(profilePhoto);
         }
 
         private static string ValidateName(string name)
@@ -103,7 +110,7 @@ namespace SpottedUnitn.Model.UserAggregate
                     return null;
                 case UserRole.Registered:
                     if (subscriptionDate == null)
-                        throw UserException.UserNotConfirmedException(this.id);
+                        return null;
                     return this.subscriptionDate + TimeSpan.FromDays(SUBSCRIPTION_VALIDITY_DAYS);
                 default:
                     throw new InvalidOperationException("missing role");

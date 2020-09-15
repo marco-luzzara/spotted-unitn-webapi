@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpottedUnitn.Model.ShopAggregate;
+using SpottedUnitn.Model.ShopAggregate.ValueObjects;
 using SpottedUnitn.Model.UserAggregate;
+using SpottedUnitn.Model.UserAggregate.ValueObjects;
 using System;
 
 namespace SpottedUnitn.Data
@@ -66,14 +68,37 @@ namespace SpottedUnitn.Data
                         .HasMaxLength(320);
                 });
 
-            modelBuilder.Entity<User>()
-                .OwnsOne(u => u.ProfilePhoto, builder =>
-                {
-                    builder.ToTable("UserProfilePhoto");
+            modelBuilder.Entity<UserProfilePhoto>(builder =>
+            {
+                builder.HasKey(upp => upp.UserId);
 
-                    builder.Property(u => u.ProfilePhoto)
-                        .IsRequired();
-                });
+                builder.Property(upp => upp.UserId)
+                    .HasField("userId");
+
+                builder.Property(upp => upp.ProfilePhoto)
+                    .HasField("profilePhoto")
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<User>()
+                .HasOne<UserProfilePhoto>(u => u.ProfilePhoto)
+                .WithOne()
+                .HasForeignKey<UserProfilePhoto>(upp => upp.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //modelBuilder.Entity<User>()
+            //    .OwnsOne(u => u.ProfilePhoto, builder =>
+            //    {
+            //        builder.Metadata.IsOwnership = false;
+            //        builder.Metadata.IsRequired = false;
+            //        builder.Metadata.PrincipalToDependent.SetIsEagerLoaded(false);
+
+            //        builder.ToTable("UserProfilePhoto");
+
+            //        builder.Property(u => u.ProfilePhoto)
+            //            .IsRequired();
+            //    });
         }
 
         protected void OnShopModelCreating(ModelBuilder modelBuilder)
@@ -135,15 +160,38 @@ namespace SpottedUnitn.Data
                         .IsRequired();
                 });
 
-            modelBuilder.Entity<Shop>()
-                .OwnsOne(s => s.CoverPicture, builder =>
-                {
-                    builder.ToTable("ShopCoverPicture");
+            modelBuilder.Entity<ShopCoverPicture>(builder =>
+            {
+                builder.HasKey(scp => scp.ShopId);
 
-                    builder.Property(s => s.CoverPicture)
-                        .HasDefaultValue(new byte[] { })
-                        .IsRequired();
-                });
+                builder.Property(scp => scp.ShopId)
+                    .HasField("shopId");
+
+                builder.Property(upp => upp.CoverPicture)
+                    .HasField("coverPicture")
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<Shop>()
+                .HasOne<ShopCoverPicture>(s => s.CoverPicture)
+                .WithOne()
+                .HasForeignKey<ShopCoverPicture>(scp => scp.ShopId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //modelBuilder.Entity<Shop>()
+            //    .OwnsOne(s => s.CoverPicture, builder =>
+            //    {
+            //        builder.Metadata.IsOwnership = false;
+            //        builder.Metadata.IsRequired = false;
+            //        builder.Metadata.PrincipalToDependent.SetIsEagerLoaded(false);
+
+            //        builder.ToTable("ShopCoverPicture");
+
+            //        builder.Property(s => s.CoverPicture)
+            //            .HasDefaultValue(new byte[] { })
+            //            .IsRequired();
+            //    });
         }
     }
 }

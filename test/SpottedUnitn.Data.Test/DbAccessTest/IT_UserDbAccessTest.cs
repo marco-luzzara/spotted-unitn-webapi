@@ -253,6 +253,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);
             var user = UserUtils.GenerateUser();
+            user.ChangeRegistrationToConfirmed(this.dtoService);
 
             try
             {
@@ -262,7 +263,8 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
                 var userInfo = await dbAccess.GetUserInfoAsync(user.Id);
 
                 Assert.AreEqual(user.Id, userInfo.Id);
-                Assert.AreEqual(false, userInfo.IsConfirmed);
+                Assert.AreEqual(true, userInfo.IsConfirmed);
+                Assert.IsNotNull(userInfo.ExpirationDate);
                 Assert.AreEqual(user.Name, userInfo.Name);
                 Assert.AreEqual(user.LastName, userInfo.LastName);
                 Assert.AreEqual(user.Credentials.Mail, userInfo.Mail);

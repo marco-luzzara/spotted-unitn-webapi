@@ -138,7 +138,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
+                CollectionAssert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
         }
 
         [DataTestMethod]
@@ -202,7 +202,27 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
+                CollectionAssert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void SetCredentials_CredentialsNull_Throw()
+        {
+            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, VALID_USERROLE);
+
+            user.SetCredentials(null);
+        }
+
+        [TestMethod]
+        public void SetCredentials_ValidCredentials()
+        {
+            User user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, VALID_USERROLE);
+            var newCredentials = Credentials.Create(VALID_MAIL + "a", VALID_PASSWORD);
+
+            user.SetCredentials(newCredentials);
+
+            Assert.AreEqual(newCredentials, user.Credentials);
         }
 
         [DataTestMethod]
@@ -265,12 +285,13 @@ namespace SpottedUnitn.Model.Test
         }
 
         [TestMethod]
-        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.UserNotConfirmed)]
-        public void GetSubscriptionExpiredDate_UserNotConfirmed_Throw()
+        public void GetSubscriptionExpiredDate_UserNotConfirmed_ReturnNull()
         {
             var user = User.Create(VALID_NAME, VALID_LASTNAME, VALID_CREDENTIALS, VALID_PROFILEPHOTO, User.UserRole.Registered);
 
             var expireDate = user.GetSubscriptionExpiredDate();
+
+            Assert.IsNull(expireDate);
         }
 
         [DataTestMethod]

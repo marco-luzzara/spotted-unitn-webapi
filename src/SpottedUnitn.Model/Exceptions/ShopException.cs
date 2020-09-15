@@ -25,7 +25,8 @@ namespace SpottedUnitn.Model.Exceptions
             InvalidLocationLatitude,
             InvalidLocationLongitude,
             InvalidPhoneNumber,
-            CannotCreate
+            CannotCreate,
+            ShopIdNotFound
         }
 
         public static ShopException InvalidNameException(string name)
@@ -90,7 +91,12 @@ namespace SpottedUnitn.Model.Exceptions
 
         public static ShopException InvalidPhoneNumberException(string phoneNumber)
         {
-            return new ShopException(ShopExceptionCode.InvalidPhoneNumber, $"phone number {phoneNumber} cannot contain letters, accepted this format +(123) - 456-78-90");
+            return new ShopException(ShopExceptionCode.InvalidPhoneNumber, $"phone number {phoneNumber} cannot contain letters and cannot exceed 15 digits.");
+        }
+
+        public static ShopException ShopIdNotFoundException(int id)
+        {
+            return new ShopException(ShopExceptionCode.ShopIdNotFound, $"shop (id={id}) has not been found");
         }
     }
 }

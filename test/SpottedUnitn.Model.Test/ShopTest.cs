@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SpottedUnitn.Infrastructure.Test.TestingUtility;
 using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Model.ShopAggregate;
 using SpottedUnitn.Model.ShopAggregate.ValueObjects;
@@ -292,7 +293,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                Assert.AreEqual(coverPicture, shop.CoverPicture.CoverPicture);
+                CollectionAssert.AreEqual(coverPicture, shop.CoverPicture.CoverPicture);
         }
 
         [DataTestMethod]
@@ -361,6 +362,31 @@ namespace SpottedUnitn.Model.Test
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
                 Assert.AreEqual(phoneNumber, shop.PhoneNumber);
+        }
+
+        public static IEnumerable<object[]> GetDataRow_LocationValidation()
+        {
+            yield return new object[] { null, false };
+            yield return new object[] { VALID_LOCATION, true };
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void SetLocation_LocationNull_Throw()
+        {
+            Shop shop = Shop.Create(VALID_NAME, VALID_DESCRIPTION, VALID_DISCOUNT, VALID_LOCATION);
+
+            shop.SetLocation(null);
+        }
+
+        [TestMethod]
+        public void SetLocation_LocatioValid()
+        {
+            Shop shop = Shop.Create(VALID_NAME, VALID_DESCRIPTION, VALID_DISCOUNT, VALID_LOCATION);
+
+            shop.SetLocation(VALID_LOCATION);
+
+            Assert.AreEqual(VALID_LOCATION, shop.Location);
         }
     }
 }

@@ -1,8 +1,11 @@
-﻿using SpottedUnitn.Data.Dto.Shop;
+﻿using Microsoft.EntityFrameworkCore;
+using SpottedUnitn.Data.Dto.Shop;
 using SpottedUnitn.Infrastructure.Services;
+using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Model.ShopAggregate;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,34 +17,90 @@ namespace SpottedUnitn.Data.DbAccess
         {
         }
 
-        public Task<Shop> AddShopAsync(Shop shop)
+        public async Task<Shop> AddShopAsync(Shop shop)
         {
-            throw new NotImplementedException();
+            if (shop == null)
+                throw new ArgumentNullException("shop cannot be null");
+
+            await this.modelContext.AddAsync(shop);
+            await this.modelContext.SaveChangesAsync();
+
+            return shop;
         }
 
-        public Task<Shop> ChangeShopDataAsync(int id)
+        public async Task<Shop> ChangeShopDataAsync(Shop shop)
         {
-            throw new NotImplementedException();
+            if (shop == null)
+                throw new ArgumentNullException("shop cannot be null");
+
+            var updateShop = await this.modelContext.Shops.FindAsync(shop.Id);
+
+            if (updateShop == null)
+                throw ShopException.ShopIdNotFoundException(shop.Id);
+
+            updateShop.SetName(shop.Name);
+            updateShop.SetLinkToSite(shop.LinkToSite);
+            updateShop.SetDescription(shop.Description);
+            updateShop.SetDiscount(shop.Discount);
+            updateShop.SetLocation(shop.Location);
+            updateShop.SetPhoneNumber(shop.PhoneNumber);
+            updateShop.SetCoverPicture(shop.CoverPicture.CoverPicture);
+
+            await this.modelContext.SaveChangesAsync();
+
+            return updateShop;
         }
 
-        public Task DeleteShopAsync(int id)
+        public async Task DeleteShopAsync(int id)
         {
-            throw new NotImplementedException();
+            var shop = await this.modelContext.Shops.FindAsync(id);
+
+            if (shop == null)
+                throw ShopException.ShopIdNotFoundException(id);
+
+            this.modelContext.Shops.Remove(shop);
+            await this.modelContext.SaveChangesAsync();
         }
 
-        public Task<ShopBasicInfo> GetAllShopsAsync()
+        public async Task<List<ShopBasicInfo>> GetAllShopsOrderedByNameAsync()
         {
-            throw new NotImplementedException();
+            return await this.modelContext.Shops
+                .OrderBy(s => s.Name)
+                .Select(s => new ShopBasicInfo()
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    Discount = s.Discount,
+                    Location = s.Location
+                })
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        public Task<byte[]> GetCoverPictureAsync(int id)
+        public async Task<byte[]> GetCoverPictureAsync(int id)
         {
-            throw new NotImplementedException();
+            var shop = await this.modelContext.Shops
+                .AsNoTracking()
+                .Include(s => s.CoverPicture)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (shop == null)
+                throw ShopException.ShopIdNotFoundException(id);
+
+            return shop.CoverPicture.CoverPicture;
         }
 
-        public Task<Shop> GetShopAsync(int id)
+        public async Task<Shop> GetShopAsync(int id)
         {
-            throw new NotImplementedException();
+            var shop = await this.modelContext.Shops
+                .Include(s => s.CoverPicture)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (shop == null)
+                throw ShopException.ShopIdNotFoundException(id);
+
+            return shop;
         }
     }
 }

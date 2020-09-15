@@ -1,21 +1,31 @@
 ﻿using SpottedUnitn.Model.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SpottedUnitn.Model.UserAggregate.ValueObjects
 {
     public class UserProfilePhoto
     {
-        public byte[] ProfilePhoto { get; private set; }
+        private int userId;
+        public int UserId => this.userId;
 
-        private UserProfilePhoto()
+        private byte[] profilePhoto;
+        public byte[] ProfilePhoto => this.profilePhoto.ToArray();
+
+        protected UserProfilePhoto()
         {
         }
 
         public UserProfilePhoto(byte[] profilePhoto)
         {
-            this.ProfilePhoto = ValidateProfilePhoto(profilePhoto);
+            this.SetProfilePhoto(profilePhoto);
+        }
+
+        public void SetProfilePhoto(byte[] profilePhoto)
+        {
+            this.profilePhoto = ValidateProfilePhoto(profilePhoto);
         }
 
         private static byte[] ValidateProfilePhoto(byte[] profilePhoto)
@@ -24,30 +34,6 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
                 throw UserException.InvalidProfilePhotoException(profilePhoto);
 
             return profilePhoto;
-        }
-
-        public override bool Equals(object obj)
-        {
-            UserProfilePhoto userProfilePhotoObj = obj as UserProfilePhoto;
-            if (userProfilePhotoObj == null)
-                return false;
-            else
-                return this == userProfilePhotoObj;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(this.ProfilePhoto);
-        }
-
-        public static bool operator ==(UserProfilePhoto e1, UserProfilePhoto e2)
-        {
-            return e1.ProfilePhoto == e2.ProfilePhoto;
-        }
-
-        public static bool operator !=(UserProfilePhoto e1, UserProfilePhoto e2)
-        {
-            return !(e1 == e2);
         }
     }
 }

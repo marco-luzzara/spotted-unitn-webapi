@@ -1,21 +1,26 @@
 ﻿using SpottedUnitn.Model.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
 {
     public class ShopCoverPicture
     {
-        public byte[] CoverPicture { get; private set; }
+        private int shopId;
+        public int ShopId => this.shopId;
 
-        private ShopCoverPicture()
+        private byte[] coverPicture;
+        public byte[] CoverPicture => this.coverPicture.ToArray();
+
+        protected ShopCoverPicture()
         {
         }
 
         public ShopCoverPicture(byte[] coverPicture)
         {
-            this.CoverPicture = ValidateCoverPicture(coverPicture);
+            this.SetCoverPicture(coverPicture);
         }
 
         private static byte[] ValidateCoverPicture(byte[] coverPicture)
@@ -26,28 +31,9 @@ namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
             return coverPicture;
         }
 
-        public override bool Equals(object obj)
+        public void SetCoverPicture(byte[] coverPicture)
         {
-            ShopCoverPicture coverPictureObj = obj as ShopCoverPicture;
-            if (coverPictureObj == null)
-                return false;
-            else
-                return this == coverPictureObj;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(this.CoverPicture);
-        }
-
-        public static bool operator ==(ShopCoverPicture e1, ShopCoverPicture e2)
-        {
-            return e1.CoverPicture == e2.CoverPicture;
-        }
-
-        public static bool operator !=(ShopCoverPicture e1, ShopCoverPicture e2)
-        {
-            return !(e1 == e2);
+            this.coverPicture = ValidateCoverPicture(coverPicture);
         }
     }
 }

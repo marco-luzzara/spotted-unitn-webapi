@@ -24,10 +24,9 @@ namespace SpottedUnitn.Model.ShopAggregate
         public string Description => this.description;
 
         private Location location;
-        public Location Location => this.location;
+        public virtual Location Location => this.location;
 
-        private ShopCoverPicture coverPicture;
-        public ShopCoverPicture CoverPicture => this.coverPicture;
+        public virtual ShopCoverPicture CoverPicture { get; private set; }
 
         private string discount;
         public string Discount => this.discount;
@@ -35,7 +34,7 @@ namespace SpottedUnitn.Model.ShopAggregate
         private string phoneNumber = "";
         public string PhoneNumber => this.phoneNumber;
 
-        private Shop()
+        protected Shop()
         {
         }
 
@@ -46,10 +45,10 @@ namespace SpottedUnitn.Model.ShopAggregate
             shop.SetName(name);
             shop.SetDescription(description);
             shop.SetDiscount(discount);
-            shop.location = location;
-            shop.coverPicture = new ShopCoverPicture(new byte[] { });
-            shop.linkToSite = "";
-            shop.phoneNumber = "";
+            shop.SetLocation(location);
+            shop.CoverPicture = new ShopCoverPicture(new byte[] { });
+            shop.SetLinkToSite("");
+            shop.SetPhoneNumber("");
 
             return shop;
         }
@@ -57,6 +56,14 @@ namespace SpottedUnitn.Model.ShopAggregate
         public void SetName(string name)
         {
             this.name = ValidateName(name);
+        }
+
+        public void SetLocation(Location location)
+        {
+            if (location == null)
+                throw new ArgumentNullException("location cannot be null");
+
+            this.location = location;
         }
 
         public void SetDescription(string description)
@@ -71,7 +78,7 @@ namespace SpottedUnitn.Model.ShopAggregate
 
         public void SetCoverPicture(byte[] coverPicture)
         {
-            this.coverPicture = new ShopCoverPicture(coverPicture);
+            this.CoverPicture.SetCoverPicture(coverPicture);
         }
 
         public void SetDiscount(string discount)

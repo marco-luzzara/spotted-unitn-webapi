@@ -15,12 +15,18 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             .AddJsonFile("appsettings.json")
             .Build();
 
-        protected static readonly ILoggerFactory loggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
+        protected static readonly ILoggerFactory loggerFactory = LoggerFactory.Create(builder => 
+        {
+            builder
+                .AddConsole()
+                .AddLog4Net();
+        });
 
         protected ModelContext GetModelContext(DbContextOptionsBuilder<ModelContext> builder)
         {
             builder
                .UseLoggerFactory(loggerFactory)
+               .UseLazyLoadingProxies()
                .EnableDetailedErrors();
 
             var ctx = new ModelContext(builder.Options);

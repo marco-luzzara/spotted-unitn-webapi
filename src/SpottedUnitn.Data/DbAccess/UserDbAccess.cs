@@ -66,7 +66,8 @@ namespace SpottedUnitn.Data.DbAccess
                     Name = u.Name,
                     LastName = u.LastName,
                     Mail = u.Credentials.Mail,
-                    IsConfirmed = u.IsSubscriptionValid(this.dtoService)
+                    IsConfirmed = u.IsSubscriptionValid(this.dtoService),
+                    ExpirationDate = u.GetSubscriptionExpiredDate()
                 }).AsNoTracking();
 
             return await users.ToListAsync();
@@ -74,7 +75,9 @@ namespace SpottedUnitn.Data.DbAccess
 
         public async Task<UserBasicInfo> GetUserInfoAsync(int id)
         {
-            var user = await this.modelContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await this.modelContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
                 throw UserException.UserIdNotFoundException(id);
@@ -85,13 +88,17 @@ namespace SpottedUnitn.Data.DbAccess
                 Name = user.Name,
                 LastName = user.LastName,
                 Mail = user.Credentials.Mail,
-                IsConfirmed = user.IsSubscriptionValid(this.dtoService)
+                IsConfirmed = user.IsSubscriptionValid(this.dtoService),
+                ExpirationDate = user.GetSubscriptionExpiredDate()
             };
         }
 
         public async Task<byte[]> GetUserProfilePhotoAsync(int id)
         {
-            var user = await this.modelContext.Users.FindAsync(id);
+            var user = await this.modelContext.Users
+                .AsNoTracking()
+                .Include(u => u.ProfilePhoto)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
                 throw UserException.UserIdNotFoundException(id);
@@ -103,12 +110,13 @@ namespace SpottedUnitn.Data.DbAccess
         {
             var loggedUserData = await this.modelContext.Users
                 .Where(u => u.Credentials.Mail == credentials.Mail && u.Credentials.HashedPwd == credentials.HashedPwd)
+                .AsNoTracking()
                 .Select(u => new
                 {
                     u.Id,
                     u.Role,
-                    IsConfirmed = u.SubscriptionDate != null
-                }).AsNoTracking().FirstOrDefaultAsync();
+                    IsConfirmed = u.IsSubscriptionValid(this.dtoService)
+                }).FirstOrDefaultAsync();
 
             if (loggedUserData == null)
                 throw UserException.WrongCredentialsException(credentials.Mail, credentials.HashedPwd);

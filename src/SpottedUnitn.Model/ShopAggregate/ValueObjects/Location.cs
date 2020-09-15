@@ -20,7 +20,7 @@ namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
 
         public float Longitude { get; private set; }
 
-        private Location()
+        protected Location()
         {
         }
 
@@ -92,7 +92,7 @@ namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
             if (locationObj == null)
                 return false;
             else
-                return this == locationObj;
+                return this.Latitude == locationObj.Latitude && this.Longitude == locationObj.Longitude;
         }
 
         public override int GetHashCode()
@@ -102,7 +102,10 @@ namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
 
         public static bool operator ==(Location l1, Location l2)
         {
-            return l1.Latitude == l2.Latitude && l1.Longitude == l2.Longitude;
+            if (l1 is object)
+                return l1.Equals(l2);
+            else
+                return l2 is null;
         }
 
         public static bool operator !=(Location l1, Location l2)

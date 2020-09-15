@@ -14,7 +14,7 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
         public string Mail { get; private set; }
         public string HashedPwd { get; private set; }
 
-        private Credentials()
+        protected Credentials()
         {
         }
 
@@ -48,7 +48,7 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
             if (credentialsObj == null)
                 return false;
             else
-                return this == credentialsObj;
+                return this.Mail == credentialsObj.Mail && this.HashedPwd == credentialsObj.HashedPwd;
         }
 
         public override int GetHashCode()
@@ -58,7 +58,10 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
 
         public static bool operator ==(Credentials c1, Credentials c2)
         {
-            return c1.Mail == c2.Mail && c1.HashedPwd == c2.HashedPwd;
+            if (c1 is object)
+                return c1.Equals(c2);
+            else
+                return c2 is null;
         }
 
         public static bool operator !=(Credentials c1, Credentials c2)

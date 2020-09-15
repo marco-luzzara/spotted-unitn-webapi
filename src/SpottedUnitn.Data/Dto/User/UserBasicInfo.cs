@@ -15,5 +15,7 @@ namespace SpottedUnitn.Data.Dto.User
         public string Mail { get; set; }
 
         public bool IsConfirmed { get; set; }
+
+        public DateTimeOffset? ExpirationDate{ get; set; }
     }
 }
