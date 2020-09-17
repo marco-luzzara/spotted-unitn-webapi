@@ -21,7 +21,8 @@ namespace SpottedUnitn.Model.Exceptions
             CannotConfirmRegistration,
             WrongCredentials,
             UserNotConfirmed,
-            UserIdNotFound
+            UserIdNotFound,
+            DuplicateMail
         }
 
         public static UserException InvalidNameException(string name)
@@ -67,6 +68,11 @@ namespace SpottedUnitn.Model.Exceptions
         public static UserException UserIdNotFoundException(int id)
         {
             return new UserException(UserExceptionCode.UserIdNotFound, $"user (Id={id}) does not exist");
+        }
+
+        public static UserException DuplicateMailException(string mail)
+        {
+            return new UserException(UserExceptionCode.DuplicateMail, $"another user has mail {mail} associated");
         }
     }
 }

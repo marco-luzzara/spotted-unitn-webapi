@@ -1,18 +1,15 @@
-﻿using SpottedUnitn.Data.Dto.User;
-using SpottedUnitn.Model.UserAggregate;
-using SpottedUnitn.Model.UserAggregate.ValueObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpottedUnitn.Data.DbAccess
+namespace SpottedUnitn.Services.Interfaces
 {
-    public interface IUserDbAccess
+    public interface IUserService
     {
         Task<User> AddUserAsync(User user);
 
-        Task<List<UserBasicInfoDto>> GetRegisteredUsersUnconfirmedFirstAsync(int upperLimit);
+        Task<List<UserBasicInfoDto>> GetUsers(int upperLimit);
 
         Task ConfirmUserRegistrationAsync(int id);
 

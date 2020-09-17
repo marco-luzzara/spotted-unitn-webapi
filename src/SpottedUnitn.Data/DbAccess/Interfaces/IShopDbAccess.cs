@@ -7,7 +7,7 @@ namespace SpottedUnitn.Data.DbAccess
 {
     public interface IShopDbAccess
     {
-        Task<List<ShopBasicInfo>> GetAllShopsOrderedByNameAsync();
+        Task<List<ShopBasicInfoDto>> GetAllShopsOrderedByNameAsync();
 
         Task<Shop> AddShopAsync(Shop shop);
 

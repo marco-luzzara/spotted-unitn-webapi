@@ -32,7 +32,11 @@ namespace SpottedUnitn.WebApi
             services.AddDbContext<ModelContext>(optionsBuilder =>
                 optionsBuilder
                     .UseLoggerFactory(loggerFactory)
+                    .EnableDetailedErrors()
+                    .UseLazyLoadingProxies()
                     .UseSqlServer(Configuration.GetConnectionString("UnitnSpotted")));
+
+            //services.AddScoped<>
 
             services.AddControllers();
         }
@@ -49,6 +53,7 @@ namespace SpottedUnitn.WebApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

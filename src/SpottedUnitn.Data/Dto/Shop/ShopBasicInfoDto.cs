@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SpottedUnitn.Data.Dto.Shop
 {
-    public class ShopBasicInfo
+    public class ShopBasicInfoDto
     {
         public int Id { get; set; }
 

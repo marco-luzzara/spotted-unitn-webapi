@@ -18,9 +18,16 @@ namespace SpottedUnitn.WebApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(builder =>
+                {
+                    builder.AddLog4Net();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder
+                        .CaptureStartupErrors(true)
+                        .UseSetting(WebHostDefaults.DetailedErrorsKey, "true")
+                        .UseStartup<Startup>();
                 });
     }
 }

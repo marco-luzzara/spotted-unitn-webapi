@@ -62,11 +62,11 @@ namespace SpottedUnitn.Data.DbAccess
             await this.modelContext.SaveChangesAsync();
         }
 
-        public async Task<List<ShopBasicInfo>> GetAllShopsOrderedByNameAsync()
+        public async Task<List<ShopBasicInfoDto>> GetAllShopsOrderedByNameAsync()
         {
             return await this.modelContext.Shops
                 .OrderBy(s => s.Name)
-                .Select(s => new ShopBasicInfo()
+                .Select(s => new ShopBasicInfoDto()
                 {
                     Id = s.Id,
                     Name = s.Name,

@@ -7,7 +7,7 @@ using static SpottedUnitn.Model.UserAggregate.User;
 namespace SpottedUnitn.Data.Dto.User
 {
     [DataContract]
-    public class LoggedInUser
+    public class LoggedInUserDto
     {
         [DataMember(Name = "id")]
         public int Id { get; set; }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SpottedUnitn.Data.Dto.User
 {
-    public class UserBasicInfo
+    public class UserBasicInfoDto
     {
         public int Id { get; set; }
 

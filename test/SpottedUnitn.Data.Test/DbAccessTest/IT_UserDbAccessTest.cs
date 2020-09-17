@@ -26,7 +26,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
         }
 
         #region Login
-        protected async Task<LoggedInUser> LoginAsync_CredentialsTest(DbContextOptionsBuilder<ModelContext> builder, Credentials credentials, User.UserRole role, bool isConfirmed = true)
+        protected async Task<LoggedInUserDto> LoginAsync_CredentialsTest(DbContextOptionsBuilder<ModelContext> builder, Credentials credentials, User.UserRole role, bool isConfirmed = true)
         {
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);
@@ -229,6 +229,33 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             finally
             {
                 ctx.Users.Remove(user);
+                await ctx.SaveChangesAsync();
+            }
+        }
+
+        [DataTestMethod]
+        [DbContextDataSource]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.DuplicateMail)]
+        public async Task AddUserAsync_DuplicateMail_Throw(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+            var user1 = UserUtils.GenerateUser();
+            var user2 = UserUtils.GenerateUser();
+            user2.SetCredentials(Credentials.Create(user1.Credentials.Mail, UserUtils.VALID_PASSWORD));
+            bool user2Created = false;
+
+            try
+            {
+                var addedUser1 = await dbAccess.AddUserAsync(user1);
+                var addedUser2 = await dbAccess.AddUserAsync(user2);
+                user2Created = true;
+            }
+            finally
+            {
+                ctx.Users.Remove(user1);
+                if (user2Created)
+                    ctx.Users.Remove(user2);
                 await ctx.SaveChangesAsync();
             }
         }

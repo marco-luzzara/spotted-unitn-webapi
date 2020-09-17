@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using SpottedUnitn.Data.Dto.User;
 using SpottedUnitn.Infrastructure.Services;
 using SpottedUnitn.Model.Exceptions;
@@ -23,8 +24,17 @@ namespace SpottedUnitn.Data.DbAccess
             if (user == null)
                 throw new ArgumentNullException("user cannot be null");
 
-            await this.modelContext.AddAsync(user);
-            await this.modelContext.SaveChangesAsync();
+            try
+            {
+                await this.modelContext.AddAsync(user);
+                await this.modelContext.SaveChangesAsync();
+            }
+            // duplicate email
+            catch (DbUpdateException exc) when ((exc.InnerException as SqlException)?.Number == 2601)
+            {
+                this.modelContext.Remove(user);
+                throw UserException.DuplicateMailException(user.Credentials.Mail);
+            }
 
             return user;
         }
@@ -51,7 +61,7 @@ namespace SpottedUnitn.Data.DbAccess
             await this.modelContext.SaveChangesAsync();
         }
 
-        public async Task<List<UserBasicInfo>> GetRegisteredUsersUnconfirmedFirstAsync(int upperLimit)
+        public async Task<List<UserBasicInfoDto>> GetRegisteredUsersUnconfirmedFirstAsync(int upperLimit)
         {
             if (upperLimit <= 0)
                 throw new ArgumentOutOfRangeException("upperLimit must be greater than 0");
@@ -60,7 +70,7 @@ namespace SpottedUnitn.Data.DbAccess
                 .Where(u => u.Role == User.UserRole.Registered)
                 .OrderBy(u => u.SubscriptionDate.HasValue)
                 .Take(upperLimit)
-                .Select(u => new UserBasicInfo()
+                .Select(u => new UserBasicInfoDto()
                 {
                     Id = u.Id,
                     Name = u.Name,
@@ -73,7 +83,7 @@ namespace SpottedUnitn.Data.DbAccess
             return await users.ToListAsync();
         }
 
-        public async Task<UserBasicInfo> GetUserInfoAsync(int id)
+        public async Task<UserBasicInfoDto> GetUserInfoAsync(int id)
         {
             var user = await this.modelContext.Users
                 .AsNoTracking()
@@ -82,7 +92,7 @@ namespace SpottedUnitn.Data.DbAccess
             if (user == null)
                 throw UserException.UserIdNotFoundException(id);
 
-            return new UserBasicInfo()
+            return new UserBasicInfoDto()
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -106,7 +116,7 @@ namespace SpottedUnitn.Data.DbAccess
             return user.ProfilePhoto.ProfilePhoto;
         }
 
-        public async Task<LoggedInUser> LoginAsync(Credentials credentials)
+        public async Task<LoggedInUserDto> LoginAsync(Credentials credentials)
         {
             var loggedUserData = await this.modelContext.Users
                 .Where(u => u.Credentials.Mail == credentials.Mail && u.Credentials.HashedPwd == credentials.HashedPwd)
@@ -124,7 +134,7 @@ namespace SpottedUnitn.Data.DbAccess
             if (loggedUserData.Role == User.UserRole.Registered && !loggedUserData.IsConfirmed)
                 throw UserException.UserNotConfirmedException(loggedUserData.Id);
 
-            return new LoggedInUser()
+            return new LoggedInUserDto()
             {
                 Id = loggedUserData.Id,
                 Role = loggedUserData.Role
