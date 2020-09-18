@@ -1,4 +1,7 @@
-﻿using System;
+﻿using SpottedUnitn.Data.Dto.User;
+using SpottedUnitn.Model.UserAggregate;
+using SpottedUnitn.Model.UserAggregate.ValueObjects;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +12,7 @@ namespace SpottedUnitn.Services.Interfaces
     {
         Task<User> AddUserAsync(User user);
 
-        Task<List<UserBasicInfoDto>> GetUsers(int upperLimit);
+        Task<List<UserBasicInfoDto>> GetUsersAsync(int upperLimit);
 
         Task ConfirmUserRegistrationAsync(int id);
 

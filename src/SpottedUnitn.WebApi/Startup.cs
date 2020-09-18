@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,7 +13,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using SpottedUnitn.Data;
+using SpottedUnitn.Data.DbAccess;
+using SpottedUnitn.Services;
+using SpottedUnitn.Services.Interfaces;
+using SpottedUnitn.WebApi.Configs.Options;
 
 namespace SpottedUnitn.WebApi
 {
@@ -36,8 +43,39 @@ namespace SpottedUnitn.WebApi
                     .UseLazyLoadingProxies()
                     .UseSqlServer(Configuration.GetConnectionString("UnitnSpotted")));
 
-            //services.AddScoped<>
+            // options
+            var authSection = Configuration.GetSection("Authentication");
+            services.Configure<JWTOptions>(authSection);
 
+            // services
+            services.AddScoped<IUserDbAccess, UserDbAccess>();
+            services.AddScoped<IShopDbAccess, ShopDbAccess>();
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IShopService, ShopService>();
+
+            // configure jwt authentication
+            var jwtConfigs = authSection.Get<JWTOptions>();
+            var key = Encoding.ASCII.GetBytes(jwtConfigs.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            services.AddCors();
             services.AddControllers();
         }
 
@@ -52,6 +90,11 @@ namespace SpottedUnitn.WebApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseAuthentication();
             app.UseAuthorization();

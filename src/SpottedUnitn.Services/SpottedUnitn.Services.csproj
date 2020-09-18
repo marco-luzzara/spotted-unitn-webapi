@@ -10,4 +10,9 @@
     <None Remove="Dtos\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SpottedUnitn.Data\SpottedUnitn.Data.csproj" />
+    <ProjectReference Include="..\SpottedUnitn.Model\SpottedUnitn.Model.csproj" />
+  </ItemGroup>
+
 </Project>
