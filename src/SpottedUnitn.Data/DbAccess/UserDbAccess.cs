@@ -119,17 +119,21 @@ namespace SpottedUnitn.Data.DbAccess
         public async Task<LoggedInUserDto> LoginAsync(Credentials credentials)
         {
             var loggedUserData = await this.modelContext.Users
-                .Where(u => u.Credentials.Mail == credentials.Mail && u.Credentials.HashedPwd == credentials.HashedPwd)
+                .Where(u => u.Credentials.Mail == credentials.Mail)
                 .AsNoTracking()
                 .Select(u => new
                 {
+                    u.Credentials,
                     u.Id,
                     u.Role,
                     IsConfirmed = u.IsSubscriptionValid(this.dtoService)
                 }).FirstOrDefaultAsync();
 
             if (loggedUserData == null)
-                throw UserException.WrongCredentialsException(credentials.Mail, credentials.HashedPwd);
+                throw UserException.WrongMailException(credentials.Mail);
+
+            if (loggedUserData.Credentials != credentials)
+                throw UserException.WrongPasswordException(credentials.Mail);
 
             if (loggedUserData.Role == User.UserRole.Registered && !loggedUserData.IsConfirmed)
                 throw UserException.UserNotConfirmedException(loggedUserData.Id);

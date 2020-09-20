@@ -114,6 +114,26 @@ namespace SpottedUnitn.Model.Test
                 Assert.IsNotNull(creds.HashedPwd);
         }
 
+        [TestMethod]
+        public void CredentialsEquality_PasswordEqual()
+        {
+            Credentials creds1 = Credentials.Create(VALID_MAIL, VALID_PASSWORD);
+            Credentials creds2 = Credentials.Create(VALID_MAIL, VALID_PASSWORD);
+
+            Assert.AreEqual(creds1, creds2);
+        }
+
+        [DataTestMethod]
+        [DataRow(VALID_MAIL, VALID_PASSWORD + "a")]
+        [DataRow(VALID_MAIL + "a", VALID_PASSWORD)]
+        public void CredentialsEquality_WrongCredentials(string mail, string pwd)
+        {
+            Credentials creds1 = Credentials.Create(VALID_MAIL, VALID_PASSWORD);
+            Credentials creds2 = Credentials.Create(mail, pwd);
+
+            Assert.AreNotEqual(creds1, creds2);
+        }
+
         public static IEnumerable<object[]> GetDataRow_ProfilePhotoValidation()
         {
             yield return new object[] { null, false };

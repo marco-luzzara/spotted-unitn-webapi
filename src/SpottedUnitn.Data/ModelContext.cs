@@ -62,6 +62,8 @@ namespace SpottedUnitn.Data
                         .HasColumnType("VARCHAR(72)")
                         .HasMaxLength(72);
 
+                    ownBuilder.Ignore(c => c.Password);
+
                     ownBuilder.Property(c => c.Mail)
                         .IsRequired()
                         .HasColumnType("NVARCHAR(320)")

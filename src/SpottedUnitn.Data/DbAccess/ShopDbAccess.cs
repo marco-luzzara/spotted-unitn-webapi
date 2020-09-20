@@ -28,15 +28,15 @@ namespace SpottedUnitn.Data.DbAccess
             return shop;
         }
 
-        public async Task<Shop> ChangeShopDataAsync(Shop shop)
+        public async Task<Shop> ChangeShopDataAsync(int shopId, Shop shop)
         {
             if (shop == null)
                 throw new ArgumentNullException("shop cannot be null");
 
-            var updateShop = await this.modelContext.Shops.FindAsync(shop.Id);
+            var updateShop = await this.modelContext.Shops.FindAsync(shopId);
 
             if (updateShop == null)
-                throw ShopException.ShopIdNotFoundException(shop.Id);
+                throw ShopException.ShopIdNotFoundException(shopId);
 
             updateShop.SetName(shop.Name);
             updateShop.SetLinkToSite(shop.LinkToSite);

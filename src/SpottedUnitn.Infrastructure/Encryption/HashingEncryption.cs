@@ -14,5 +14,11 @@ namespace SpottedUnitn.Infrastructure.Encryption
             var pwd = BCrypt.Net.BCrypt.HashPassword(s, cost);
             return pwd;
         }
+
+        public static bool VerifyWithBCrypt(string pwd, string hashedPwd)
+        {
+            var pwdCheck = BCrypt.Net.BCrypt.Verify(pwd, hashedPwd);
+            return pwdCheck;
+        }
     }
 }

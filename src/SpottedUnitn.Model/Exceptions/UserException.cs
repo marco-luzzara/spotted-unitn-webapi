@@ -19,7 +19,8 @@ namespace SpottedUnitn.Model.Exceptions
             InvalidPassword,
             InvalidProfilePhoto,
             CannotConfirmRegistration,
-            WrongCredentials,
+            WrongMail,
+            WrongPassword,
             UserNotConfirmed,
             UserIdNotFound,
             DuplicateMail
@@ -55,9 +56,14 @@ namespace SpottedUnitn.Model.Exceptions
             return new UserException(UserExceptionCode.CannotConfirmRegistration, $"user (Id={confirmed.Id}, Role={confirmed.Role}) cannot be confirmed because he is admin or has already been confirmed");
         }
 
-        public static UserException WrongCredentialsException(string mail, string password)
+        public static UserException WrongMailException(string mail)
         {
-            return new UserException(UserExceptionCode.WrongCredentials, $"credentials (mail={mail}, password={password}) do not reference any user");
+            return new UserException(UserExceptionCode.WrongMail, $"user with mail {mail} does not exist");
+        }
+
+        public static UserException WrongPasswordException(string mail)
+        {
+            return new UserException(UserExceptionCode.WrongPassword, $"inserted password is wrong for the user taken into account (mail={mail})");
         }
 
         public static UserException UserNotConfirmedException(int id)

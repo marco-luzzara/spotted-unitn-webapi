@@ -1,0 +1,656 @@
+{
+	"info": {
+		"_postman_id": "127464d5-dfc8-41fd-bdab-8823438aabff",
+		"name": "UnitnSpotted",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "354ee2bb-d03a-4d06-a7cd-b9a1c14a6d1a",
+								"exec": [
+									"pm.collectionVariables.set(\"token\", JSON.parse(responseBody).token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "mail",
+									"value": "m.luzz@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Testing123",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/users/login",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5a522562-1ba0-4999-b838-6665e54a8310",
+								"exec": [
+									"//pm.collectionVariables.set(\"token\", JSON.parse(responseBody).jwt);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Marco",
+									"type": "text"
+								},
+								{
+									"key": "lastName",
+									"value": "Luzzara",
+									"type": "text"
+								},
+								{
+									"key": "mail",
+									"value": "m.luzz@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Testing123",
+									"type": "text"
+								},
+								{
+									"key": "ProfilePhoto",
+									"type": "file",
+									"src": "/C:/Users/m.luzzara/Pictures/Saved Pictures/photo.png"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/users",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/users/me",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/users",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/users/165/confirm",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"users",
+								"165",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/users/me",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User ProfilePhoto",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/users/me/profilePhoto",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"profilePhoto"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6e01d79b-592d-4531-a0a0-b10a0626d2bf",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7811d6ca-c75c-4d28-abf6-024f558d8806",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Shop",
+			"item": [
+				{
+					"name": "Get Shops",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/shops",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"shops"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Shop",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "shop1",
+									"type": "text"
+								},
+								{
+									"key": "linkToSite",
+									"value": "http://belloshop.it",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "bello shop",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "via trentino,2",
+									"type": "text"
+								},
+								{
+									"key": "city",
+									"value": "Trento",
+									"type": "text"
+								},
+								{
+									"key": "province",
+									"value": "TN",
+									"type": "text"
+								},
+								{
+									"key": "postalCode",
+									"value": "38121",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "45.174464",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "10.791850",
+									"type": "text"
+								},
+								{
+									"key": "coverPicture",
+									"type": "file",
+									"src": "/C:/Users/m.luzzara/Pictures/Saved Pictures/photo.png"
+								},
+								{
+									"key": "discount",
+									"value": "10%",
+									"type": "text"
+								},
+								{
+									"key": "phoneNumber",
+									"value": "3483333333",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/shops",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"shops"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Shop",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "shoppino1",
+									"type": "text"
+								},
+								{
+									"key": "linkToSite",
+									"value": "http://belloshoppino.it",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "bello shoppino",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "via trentino,2",
+									"type": "text"
+								},
+								{
+									"key": "city",
+									"value": "Trento",
+									"type": "text"
+								},
+								{
+									"key": "province",
+									"value": "TN",
+									"type": "text"
+								},
+								{
+									"key": "postalCode",
+									"value": "38121",
+									"type": "text"
+								},
+								{
+									"key": "latitude",
+									"value": "45.174464",
+									"type": "text"
+								},
+								{
+									"key": "longitude",
+									"value": "10.791850",
+									"type": "text"
+								},
+								{
+									"key": "coverPicture",
+									"type": "file",
+									"src": "/C:/Users/m.luzzara/Pictures/Saved Pictures/photo.png"
+								},
+								{
+									"key": "discount",
+									"value": "10%",
+									"type": "text"
+								},
+								{
+									"key": "phoneNumber",
+									"value": "3483333333",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/shops/100",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"shops",
+								"100"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Shop",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/shops/100",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"shops",
+								"100"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Shop CoverPicture",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/shops/100/coverPicture",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"shops",
+								"100",
+								"coverPicture"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Shop",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{endpoint}}/shops/100",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"shops",
+								"100"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "7014d212-41fd-4a92-bcdf-7d39fde72f87",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "c8c890fd-c368-4147-a1aa-0de93637f7e3",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "3c5a06d3-774a-47d8-a472-3735429e3dfe",
+			"key": "endpoint",
+			"value": "localhost:44319"
+		},
+		{
+			"id": "b9fa3803-4b17-4b1e-b241-ad64cf379ae0",
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6MjIwLCJyb2xlIjoiQWRtaW4iLCJuYmYiOjE2MDA2MTI0OTAsImV4cCI6MTYwMTIxNzI5MCwiaWF0IjoxNjAwNjEyNDkwfQ.jzCinYbu-n4bVbSpmtgSpweUTtpa7JpfVcbBGg9j8NY"
+		},
+		{
+			"id": "dd6e8324-bbf1-46d4-bf94-8295e4b70e9a",
+			"key": "protocol",
+			"value": "https"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -19,6 +19,8 @@ using SpottedUnitn.Data.DbAccess;
 using SpottedUnitn.Services;
 using SpottedUnitn.Services.Interfaces;
 using SpottedUnitn.WebApi.Configs.Options;
+using SpottedUnitn.WebApi.Authorization;
+using SpottedUnitn.Infrastructure.Services;
 
 namespace SpottedUnitn.WebApi
 {
@@ -48,6 +50,8 @@ namespace SpottedUnitn.WebApi
             services.Configure<JWTOptions>(authSection);
 
             // services
+            services.AddSingleton<IDateTimeOffsetService, DateTimeOffsetService>();
+
             services.AddScoped<IUserDbAccess, UserDbAccess>();
             services.AddScoped<IShopDbAccess, ShopDbAccess>();
 
@@ -73,6 +77,11 @@ namespace SpottedUnitn.WebApi
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
+            });
+            services.AddAuthorization(options =>
+            {
+                options.AddOnlyRegisteredOrAdminPolicy();
+                options.AddOnlyAdminPolicy();
             });
 
             services.AddCors();

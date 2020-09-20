@@ -58,7 +58,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
         [DataTestMethod]
         [DbContextDataSource]
-        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongCredentials)]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongMail)]
         public async Task LoginAsync_FromRegistered_EmailDoesNotExist_Throw(DbContextOptionsBuilder<ModelContext> builder)
         {
             var loggedUser = await LoginAsync_CredentialsTest(
@@ -69,7 +69,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
         [DataTestMethod]
         [DbContextDataSource]
-        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongCredentials)]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongPassword)]
         public async Task LoginAsync_FromRegistered_WrongPassword_Throw(DbContextOptionsBuilder<ModelContext> builder)
         {
             var loggedUser = await LoginAsync_CredentialsTest(
@@ -95,7 +95,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
         [DataTestMethod]
         [DbContextDataSource]
-        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongCredentials)]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongMail)]
         public async Task LoginAsync_FromAdmin_EmailDoesNotExist_Throw(DbContextOptionsBuilder<ModelContext> builder)
         {
             var loggedUser = await LoginAsync_CredentialsTest(
@@ -107,7 +107,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
         [DataTestMethod]
         [DbContextDataSource]
-        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongCredentials)]
+        [ExpectedEntityException(typeof(UserException), (int)UserException.UserExceptionCode.WrongPassword)]
         public async Task LoginAsync_FromAdmin_WrongPassword_Throw(DbContextOptionsBuilder<ModelContext> builder)
         {
             var loggedUser = await LoginAsync_CredentialsTest(

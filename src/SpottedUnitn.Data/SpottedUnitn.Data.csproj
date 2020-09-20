@@ -7,6 +7,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200915140134_ReplaceOwnedWithOneToOne.cs" />
     <Compile Remove="Migrations\20200915140134_ReplaceOwnedWithOneToOne.Designer.cs" />
+    <Compile Remove="Migrations\20200920111800_AddedPasswordToCreds.cs" />
+    <Compile Remove="Migrations\20200920111800_AddedPasswordToCreds.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

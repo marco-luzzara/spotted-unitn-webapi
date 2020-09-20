@@ -12,7 +12,10 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
     public class Credentials
     {
         public string Mail { get; private set; }
+
         public string HashedPwd { get; private set; }
+
+        public string Password { get; private set; }
 
         protected Credentials()
         {
@@ -29,6 +32,7 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
                 throw UserException.InvalidPasswordException(password);
 
             credentials.Mail = mail;
+            credentials.Password = password;
             credentials.HashedPwd = HashingEncryption.EncryptWithBCrypt(password);
 
             return credentials;
@@ -48,12 +52,15 @@ namespace SpottedUnitn.Model.UserAggregate.ValueObjects
             if (credentialsObj == null)
                 return false;
             else
-                return this.Mail == credentialsObj.Mail && this.HashedPwd == credentialsObj.HashedPwd;
+                return this.Mail == credentialsObj.Mail && (
+                    HashingEncryption.VerifyWithBCrypt(credentialsObj.Password ?? "", this.HashedPwd) ||
+                    HashingEncryption.VerifyWithBCrypt(this.Password ?? "", credentialsObj.HashedPwd)
+                );
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Mail, HashedPwd);
+            return HashCode.Combine(Mail, Password, HashedPwd);
         }
 
         public static bool operator ==(Credentials c1, Credentials c2)

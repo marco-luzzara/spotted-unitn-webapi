@@ -77,7 +77,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
                 var newDescription = shop.Description + "_changed";
                 shop.SetDescription(newDescription);
 
-                await dbAccess.ChangeShopDataAsync(shop);
+                await dbAccess.ChangeShopDataAsync(shop.Id, shop);
 
                 var entityEntry = ctx.ChangeTracker.Entries<Shop>().ToList().Single();
                 var dbProps = await entityEntry.GetDatabaseValuesAsync();
@@ -100,7 +100,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);
 
-            await dbAccess.ChangeShopDataAsync(null);
+            await dbAccess.ChangeShopDataAsync(0, null);
         }
 
         [DataTestMethod]
@@ -122,7 +122,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
                 await ctx.SaveChangesAsync();
                 isShopDeleted = true;
 
-                await dbAccess.ChangeShopDataAsync(shop);
+                await dbAccess.ChangeShopDataAsync(shop.Id, shop);
             }
             finally
             {
