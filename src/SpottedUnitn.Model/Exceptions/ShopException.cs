@@ -25,7 +25,6 @@ namespace SpottedUnitn.Model.Exceptions
             InvalidLocationLatitude,
             InvalidLocationLongitude,
             InvalidPhoneNumber,
-            CannotCreate,
             ShopIdNotFound
         }
 
@@ -52,11 +51,6 @@ namespace SpottedUnitn.Model.Exceptions
         public static ShopException InvalidCoverPictureException(byte[] coverPicture)
         {
             return new ShopException(ShopExceptionCode.InvalidCoverPicture, "cover picture cannot be null, use an empty array to specify no picture");
-        }
-
-        public static ShopException CannotCreateException(User user)
-        {
-            return new ShopException(ShopExceptionCode.CannotCreate, $"user (Id={user.Id}, Role={user.Role}) cannot add a new shop. Only admin can");
         }
 
         public static ShopException InvalidLocationAddressException(string address)

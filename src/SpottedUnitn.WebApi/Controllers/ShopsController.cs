@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using SpottedUnitn.WebApi.Authorization;
+using SpottedUnitn.WebApi.ErrorHandling;
+using SpottedUnitn.Model.Exceptions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,12 +22,12 @@ namespace SpottedUnitn.WebApi.Controllers
     [Route("shops")]
     [Authorize]
     [ApiController]
-    public class ShopsController : ControllerBase
+    public class ShopsController : EntityController
     {
         protected IShopService shopService;
         protected ILogger<ShopsController> logger;
 
-        public ShopsController(ILogger<ShopsController> logger, IShopService shopService)
+        public ShopsController(ILogger<ShopsController> logger, IShopService shopService, ICustomExceptionHandler excHandler) : base(excHandler)
         {
             this.shopService = shopService;
             this.logger = logger;
@@ -49,9 +51,29 @@ namespace SpottedUnitn.WebApi.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status201Created)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized)]
-        public async Task CreateShop([FromForm] ShopDataDto shop)
+        public async Task<ActionResult> CreateShop([FromForm] ShopDataDto shop)
         {
-            await this.shopService.AddShopAsync(shop);
+            try
+            {
+                await this.shopService.AddShopAsync(shop);
+                return Ok();
+            }
+            catch (ShopException exc) when (exc.HasCodeIn(
+                (int)ShopException.ShopExceptionCode.InvalidName,
+                (int)ShopException.ShopExceptionCode.InvalidDescription,
+                (int)ShopException.ShopExceptionCode.InvalidPhoneNumber,
+                (int)ShopException.ShopExceptionCode.InvalidDiscount,
+                (int)ShopException.ShopExceptionCode.InvalidCoverPicture,
+                (int)ShopException.ShopExceptionCode.InvalidLinkToSite,
+                (int)ShopException.ShopExceptionCode.InvalidLocationAddress,
+                (int)ShopException.ShopExceptionCode.InvalidLocationCity,
+                (int)ShopException.ShopExceptionCode.InvalidLocationProvince,
+                (int)ShopException.ShopExceptionCode.InvalidLocationPostalCode,
+                (int)ShopException.ShopExceptionCode.InvalidLocationLatitude,
+                (int)ShopException.ShopExceptionCode.InvalidLocationLongitude))
+            {
+                return BadRequest(exc);
+            }
         }
 
         // GET shops/5
@@ -63,7 +85,14 @@ namespace SpottedUnitn.WebApi.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Shop>> GetShop(int shopId)
         {
-            return await this.shopService.GetShopInfoAsync(shopId);
+            try
+            {
+                return await this.shopService.GetShopInfoAsync(shopId);
+            }
+            catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.ShopIdNotFound)
+            {
+                return NotFound(exc);
+            }
         }
 
         // PUT shops/5
@@ -73,9 +102,33 @@ namespace SpottedUnitn.WebApi.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
-        public async Task ModifyShop(int shopId, [FromForm] ShopDataDto shop)
+        public async Task<ActionResult> ModifyShop(int shopId, [FromForm] ShopDataDto shop)
         {
-            await this.shopService.ChangeShopDataAsync(shopId, shop);
+            try
+            {
+                await this.shopService.ChangeShopDataAsync(shopId, shop);
+                return Ok();
+            }
+            catch (ShopException exc) when (exc.HasCodeIn(
+                (int)ShopException.ShopExceptionCode.InvalidName,
+                (int)ShopException.ShopExceptionCode.InvalidDescription,
+                (int)ShopException.ShopExceptionCode.InvalidPhoneNumber,
+                (int)ShopException.ShopExceptionCode.InvalidDiscount,
+                (int)ShopException.ShopExceptionCode.InvalidCoverPicture,
+                (int)ShopException.ShopExceptionCode.InvalidLinkToSite,
+                (int)ShopException.ShopExceptionCode.InvalidLocationAddress,
+                (int)ShopException.ShopExceptionCode.InvalidLocationCity,
+                (int)ShopException.ShopExceptionCode.InvalidLocationProvince,
+                (int)ShopException.ShopExceptionCode.InvalidLocationPostalCode,
+                (int)ShopException.ShopExceptionCode.InvalidLocationLatitude,
+                (int)ShopException.ShopExceptionCode.InvalidLocationLongitude))
+            {
+                return BadRequest(exc);
+            }
+            catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.ShopIdNotFound)
+            {
+                return NotFound(exc);
+            }
         }
 
         // DELETE shops/5
@@ -85,9 +138,17 @@ namespace SpottedUnitn.WebApi.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
-        public async Task DeleteShop(int shopId)
+        public async Task<ActionResult> DeleteShop(int shopId)
         {
-            await this.shopService.DeleteShopAsync(shopId);
+            try
+            {
+                await this.shopService.DeleteShopAsync(shopId);
+                return Ok();
+            }
+            catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.ShopIdNotFound)
+            {
+                return NotFound(exc);
+            }
         }
 
         // GET shops/5/coverPicture
@@ -99,7 +160,14 @@ namespace SpottedUnitn.WebApi.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
         public async Task<ActionResult<byte[]>> GetShopCoverPicture(int shopId)
         {
-            return await this.shopService.GetCoverPictureAsync(shopId);
+            try
+            {
+                return await this.shopService.GetCoverPictureAsync(shopId);
+            }
+            catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.ShopIdNotFound)
+            {
+                return NotFound(exc);
+            }
         }
     }
 }

@@ -22,7 +22,8 @@ namespace SpottedUnitn.Services
 
         public async Task AddShopAsync(ShopDataDto shopData)
         {
-            await this.dbAccess.AddShopAsync(await shopData.ToShop());
+            var shop = await shopData.ToShop();
+            await this.dbAccess.AddShopAsync(shop);
         }
 
         public async Task ChangeShopDataAsync(int shopId, ShopDataDto shopData)

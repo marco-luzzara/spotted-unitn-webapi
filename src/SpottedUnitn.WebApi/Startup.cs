@@ -21,6 +21,7 @@ using SpottedUnitn.Services.Interfaces;
 using SpottedUnitn.WebApi.Configs.Options;
 using SpottedUnitn.WebApi.Authorization;
 using SpottedUnitn.Infrastructure.Services;
+using SpottedUnitn.WebApi.ErrorHandling;
 
 namespace SpottedUnitn.WebApi
 {
@@ -50,7 +51,8 @@ namespace SpottedUnitn.WebApi
             services.Configure<JWTOptions>(authSection);
 
             // services
-            services.AddSingleton<IDateTimeOffsetService, DateTimeOffsetService>();
+            services.AddTransient<IDateTimeOffsetService, DateTimeOffsetService>();
+            services.AddTransient<ICustomExceptionHandler, EntityExceptionHandler>();
 
             services.AddScoped<IUserDbAccess, UserDbAccess>();
             services.AddScoped<IShopDbAccess, ShopDbAccess>();
@@ -94,6 +96,11 @@ namespace SpottedUnitn.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
+            } 
+            else
+            {
+                app.UseExceptionHandler("/error/production");
             }
 
             app.UseHttpsRedirection();
