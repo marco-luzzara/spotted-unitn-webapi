@@ -8,5 +8,7 @@ namespace SpottedUnitn.WebApi.Configs.Options
     public class JWTOptions
     {
         public string Secret { get; set; }
+
+        public int JwtExpirationInHours { get; set; }
     }
 }

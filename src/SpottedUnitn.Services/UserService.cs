@@ -78,7 +78,7 @@ namespace SpottedUnitn.Services
                     new Claim(ClaimTypes.Name, user.Id.ToString(), ClaimValueTypes.Integer32),
                     new Claim(ClaimTypes.Role, user.Role.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddHours(jwtOptions.JwtExpirationInHours),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
