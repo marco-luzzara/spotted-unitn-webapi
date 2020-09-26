@@ -7,6 +7,7 @@ using SpottedUnitn.Infrastructure.Test.TestingUtility;
 using SpottedUnitn.Model.UserAggregate;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,7 +48,6 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
                 UserUtils.GenerateUser(User.UserRole.Admin),
                 UserUtils.GenerateUser()
             };
-            var dtoService = new DateTimeOffsetService();
 
             try
             {
@@ -92,6 +92,39 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
                 Assert.AreEqual(3, retUsers.Count);
                 Assert.AreEqual(users[1].Id, retUsers[0].Id);
+            }
+            finally
+            {
+                ctx.Users.RemoveRange(users);
+                await ctx.SaveChangesAsync();
+            }
+        }
+
+        [DataTestMethod]
+        [InMemoryContextDataSource]
+        public async Task GetRegisteredUsersUnconfirmedFirstAsync_OrderedByLastName(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+
+            var user1 = UserUtils.GenerateUser();
+            user1.SetLastName("bbb");
+            var user2 = UserUtils.GenerateUser();
+            user2.SetLastName("ccc");
+            var user3 = UserUtils.GenerateUser();
+            user3.SetLastName("aaa");
+
+            var users = new List<User>() { user1, user2, user3 };
+
+            try
+            {
+                await ctx.Users.AddRangeAsync(users);
+                await ctx.SaveChangesAsync();
+
+                var retUsers = await dbAccess.GetRegisteredUsersUnconfirmedFirstAsync(3);
+
+                Assert.AreEqual(3, retUsers.Count);
+                CollectionAssert.AreEqual(new string[] { "aaa", "bbb", "ccc" }, retUsers.Select(u => u.LastName).ToArray());
             }
             finally
             {

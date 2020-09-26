@@ -69,6 +69,7 @@ namespace SpottedUnitn.Data.DbAccess
             var users = this.modelContext.Users
                 .Where(u => u.Role == User.UserRole.Registered)
                 .OrderBy(u => u.SubscriptionDate.HasValue)
+                .ThenBy(u => u.LastName)
                 .Take(upperLimit)
                 .Select(u => new UserBasicInfoDto()
                 {

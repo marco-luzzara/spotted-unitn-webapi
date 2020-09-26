@@ -7,7 +7,7 @@ namespace SpottedUnitn.Infrastructure.Encryption
 {
     public class HashingEncryption
     {
-        private const int DEFAULT_BCRYPT_COST = 14;
+        private const int DEFAULT_BCRYPT_COST = 12;
 
         public static string EncryptWithBCrypt(string s, int cost = DEFAULT_BCRYPT_COST)
         {
