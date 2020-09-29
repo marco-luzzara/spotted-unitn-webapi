@@ -7,7 +7,8 @@ namespace SpottedUnitn.Model.Exceptions
 {
     public class ShopException : EntityException
     {
-        public ShopException(ShopExceptionCode shopExcCode, string message) : base((int)shopExcCode, message)
+        public ShopException(ShopExceptionCode shopExcCode, string message, params object[] messageParams) 
+            : base((int)shopExcCode, message, messageParams)
         {
         }
 
@@ -35,7 +36,8 @@ namespace SpottedUnitn.Model.Exceptions
 
         public static ShopException InvalidLinkToSiteException(string linkToSite)
         {
-            return new ShopException(ShopExceptionCode.InvalidLinkToSite, $"linkToSite ({linkToSite}) does not represent a valid http/s address, use empty string if it does not have a link");
+            return new ShopException(ShopExceptionCode.InvalidLinkToSite, 
+                "linkToSite ({0}) does not represent a valid http/s address, use empty string if it does not have a link", linkToSite);
         }
 
         public static ShopException InvalidDescriptionException(string description)
@@ -85,12 +87,13 @@ namespace SpottedUnitn.Model.Exceptions
 
         public static ShopException InvalidPhoneNumberException(string phoneNumber)
         {
-            return new ShopException(ShopExceptionCode.InvalidPhoneNumber, $"phone number {phoneNumber} cannot contain letters and cannot exceed 15 digits.");
+            return new ShopException(ShopExceptionCode.InvalidPhoneNumber, 
+                "phone number {0} cannot contain letters and cannot exceed 15 digits.", phoneNumber);
         }
 
         public static ShopException ShopIdNotFoundException(int id)
         {
-            return new ShopException(ShopExceptionCode.ShopIdNotFound, $"shop (id={id}) has not been found");
+            return new ShopException(ShopExceptionCode.ShopIdNotFound, "shop (id={0}) has not been found", id);
         }
     }
 }

@@ -34,6 +34,10 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // GET shops
+        /// <summary>
+        /// get all shops
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
         [Produces("application/json")]
@@ -45,6 +49,11 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // POST shops
+        /// <summary>
+        /// add new shop
+        /// </summary>
+        /// <param name="shop"></param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyAdminPolicy)]
         [Consumes("multipart/form-data")]
@@ -77,6 +86,11 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // GET shops/5
+        /// <summary>
+        /// get shop from shopId
+        /// </summary>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
         [HttpGet("{shopId}")]
         [AllowAnonymous]
         [Produces("application/json")]
@@ -96,6 +110,12 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // PUT shops/5
+        /// <summary>
+        /// change shop data
+        /// </summary>
+        /// <param name="shopId"></param>
+        /// <param name="shop"></param>
+        /// <returns></returns>
         [HttpPut("{shopId}")]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyAdminPolicy)]
         [Consumes("multipart/form-data")]
@@ -132,6 +152,11 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // DELETE shops/5
+        /// <summary>
+        /// delete specified shop
+        /// </summary>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
         [HttpDelete("{shopId}")]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyAdminPolicy)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -152,6 +177,11 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // GET shops/5/coverPicture
+        /// <summary>
+        /// get shop cover picture
+        /// </summary>
+        /// <param name="shopId"></param>
+        /// <returns></returns>
         [HttpGet("{shopId}/coverPicture")]
         [AllowAnonymous]
         [Produces("application/octet-stream")]

@@ -22,6 +22,9 @@ using SpottedUnitn.WebApi.Configs.Options;
 using SpottedUnitn.WebApi.Authorization;
 using SpottedUnitn.Infrastructure.Services;
 using SpottedUnitn.WebApi.ErrorHandling;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
 
 namespace SpottedUnitn.WebApi
 {
@@ -88,6 +91,26 @@ namespace SpottedUnitn.WebApi
 
             services.AddCors();
             services.AddControllers();
+
+            services.AddSwaggerGen(opt =>
+            {
+                opt.SwaggerDoc("v1", new OpenApiInfo()
+                {
+                    Version = "v1",
+                    Title = "Unitn Spotted API",
+                    Description = "Api for the Spotted Unitn WebApp",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Marco Luzzara",
+                        Email = string.Empty,
+                        Url = new Uri("https://github.com/marco-luzzara/spotted-unitn-webapi"),
+                    }
+                });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                opt.IncludeXmlComments(xmlPath);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -97,6 +120,12 @@ namespace SpottedUnitn.WebApi
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
+
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                });
             } 
             else
             {

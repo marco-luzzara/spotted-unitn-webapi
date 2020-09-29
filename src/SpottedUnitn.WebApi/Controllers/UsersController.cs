@@ -33,6 +33,10 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // GET: users
+        /// <summary>
+        /// get all registered users, unconfirmed first and orderer by lastname
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyAdminPolicy)]
         [Produces("application/json")]
@@ -45,6 +49,10 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // GET users/me
+        /// <summary>
+        /// get user info
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("me")]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyRegisteredOrAdminPolicy)]
         [Produces("application/json")]
@@ -65,6 +73,11 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // POST users/login
+        /// <summary>
+        /// user login
+        /// </summary>
+        /// <param name="userCredentials"></param>
+        /// <returns></returns>
         [HttpPost("login")]
         [AllowAnonymous]
         [Produces("application/json")]
@@ -89,6 +102,11 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // POST users
+        /// <summary>
+        /// register a new user. subscription date is null until one admin confirms the account.
+        /// </summary>
+        /// <param name="userRegister"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [Consumes("multipart/form-data")]
@@ -114,6 +132,11 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // PUT users/5/confirm
+        /// <summary>
+        /// confirm an already registered user. The subscription date is set to this moment
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpPut("{userId}/confirm")]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyAdminPolicy)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -139,6 +162,10 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // DELETE users/me
+        /// <summary>
+        /// delete your own account
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete("me")]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyRegisteredOrAdminPolicy)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
@@ -159,6 +186,10 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         // GET users/me
+        /// <summary>
+        /// get user profile photo
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("me/profilePhoto")]
         [Produces("application/octet-stream")]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyRegisteredOrAdminPolicy)]

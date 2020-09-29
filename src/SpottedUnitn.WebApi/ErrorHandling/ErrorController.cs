@@ -22,7 +22,7 @@ namespace SpottedUnitn.WebApi.Controllers
         }
 
         [Route("production")]
-        public IActionResult ErrorOnProduction([FromServices] IWebHostEnvironment webHostEnvironment)
+        protected IActionResult ErrorOnProduction([FromServices] IWebHostEnvironment webHostEnvironment)
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exc = context.Error;

@@ -9,9 +9,12 @@ namespace SpottedUnitn.Model.Exceptions
     {
         public int Code { get; set; }
 
-        public EntityException(int code, string message) : base(message)
+        public object[] MessageParams { get; set; }
+
+        public EntityException(int code, string message, params object[] messageParams) : base(message)
         {
             this.Code = code;
+            this.MessageParams = messageParams;
         }
 
         public bool HasCodeIn(params int[] codes)
