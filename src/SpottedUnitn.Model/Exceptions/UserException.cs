@@ -83,5 +83,10 @@ namespace SpottedUnitn.Model.Exceptions
         {
             return new UserException(UserExceptionCode.DuplicateMail, "another user has mail {0} associated", mail);
         }
+
+        public override string GetCodeName()
+        {
+            return ((UserExceptionCode)this.Code).ToString();
+        }
     }
 }

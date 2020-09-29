@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using SpottedUnitn.Model.Exceptions;
 using System;
@@ -14,10 +15,15 @@ namespace SpottedUnitn.WebApi.ErrorHandling
         protected delegate EntityExceptionData FormatExceptionOnEnvDelegate(EntityException exc);
         protected readonly FormatExceptionOnEnvDelegate FormatExceptionOnEnv;
         protected readonly ILogger<EntityExceptionHandler> logger;
+        protected readonly IStringLocalizer<EntityExceptionHandler> localizer;
 
-        public EntityExceptionHandler(IWebHostEnvironment env, ILogger<EntityExceptionHandler> logger)
+        public EntityExceptionHandler(IWebHostEnvironment env, 
+            ILogger<EntityExceptionHandler> logger, 
+            IStringLocalizer<EntityExceptionHandler> localizer)
         {
             this.logger = logger;
+            this.localizer = localizer;
+
             if (env.IsDevelopment())
                 FormatExceptionOnEnv = HandleEntityExceptionForDevelopment;
             else
@@ -30,6 +36,18 @@ namespace SpottedUnitn.WebApi.ErrorHandling
                 return HandleEntityException(entityExc);
             else
                 throw new InvalidOperationException($"handler {nameof(EntityExceptionHandler)} can only handle EntityExceptions");
+        }
+
+        protected string GetKeyForLocalizedException(EntityException exc)
+        {
+            return $"{exc.GetType().Name}.{exc.GetCodeName()}";
+        }
+
+        protected string GetLocalizedExceptionMessage(EntityException exc)
+        {
+            var localizedExcKey = GetKeyForLocalizedException(exc);
+            var formattedMessage = this.localizer[localizedExcKey];
+            return string.Format(formattedMessage, exc.MessageParams);
         }
 
         protected EntityExceptionData HandleEntityException<TEntityException>(TEntityException exc)
@@ -46,7 +64,7 @@ namespace SpottedUnitn.WebApi.ErrorHandling
             return new EntityExceptionDataOnDevelopment()
             {
                 Code = exc.Code,
-                Message = exc.Message,
+                Message = GetLocalizedExceptionMessage(exc),
                 StackTrace = exc.StackTrace
             };
         }
@@ -57,7 +75,7 @@ namespace SpottedUnitn.WebApi.ErrorHandling
             return new EntityExceptionData()
             {
                 Code = exc.Code,
-                Message = exc.Message
+                Message = GetLocalizedExceptionMessage(exc),
             };
         }
 

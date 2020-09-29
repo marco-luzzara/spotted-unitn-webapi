@@ -65,7 +65,7 @@ namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
         protected static string ValidateProvince(string province)
         {
             if (string.IsNullOrEmpty(province))
-                throw ShopException.InvalidLocationProvinceeException(province);
+                throw ShopException.InvalidLocationProvinceException(province);
 
             return province;
         }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using SpottedUnitn.Data.Dto.User;
 using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Services.Dto.User;
@@ -39,7 +40,7 @@ namespace SpottedUnitn.WebApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyAdminPolicy)]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized)]
@@ -55,7 +56,7 @@ namespace SpottedUnitn.WebApi.Controllers
         /// <returns></returns>
         [HttpGet("me")]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyRegisteredOrAdminPolicy)]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized)]
@@ -80,7 +81,7 @@ namespace SpottedUnitn.WebApi.Controllers
         /// <returns></returns>
         [HttpPost("login")]
         [AllowAnonymous]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         [Consumes("application/x-www-form-urlencoded")]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
@@ -191,17 +192,18 @@ namespace SpottedUnitn.WebApi.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("me/profilePhoto")]
-        [Produces("application/octet-stream")]
+        [Produces(MediaTypeNames.Application.Octet)]
         [Authorize(Policy = AuthorizationOptionsExtension.onlyRegisteredOrAdminPolicy)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<byte[]>> GetUserProfilePhotoAsync()
+        public async Task<IActionResult> GetUserProfilePhotoAsync()
         {
             try
             {
-                return await this.userService.GetUserProfilePhotoAsync(int.Parse(User.Identity.Name));
+                var data = await this.userService.GetUserProfilePhotoAsync(int.Parse(User.Identity.Name));
+                return new FileContentResult(data, MediaTypeNames.Application.Octet);
             }
             catch (UserException exc) when (exc.Code == (int)UserException.UserExceptionCode.UserIdNotFound)
             {

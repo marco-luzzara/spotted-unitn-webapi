@@ -40,7 +40,7 @@ namespace SpottedUnitn.WebApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [AllowAnonymous]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<ShopBasicInfoDto>>> GetShops()
@@ -93,7 +93,7 @@ namespace SpottedUnitn.WebApi.Controllers
         /// <returns></returns>
         [HttpGet("{shopId}")]
         [AllowAnonymous]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
@@ -184,15 +184,16 @@ namespace SpottedUnitn.WebApi.Controllers
         /// <returns></returns>
         [HttpGet("{shopId}/coverPicture")]
         [AllowAnonymous]
-        [Produces("application/octet-stream")]
+        [Produces(MediaTypeNames.Application.Octet)]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<byte[]>> GetShopCoverPicture(int shopId)
+        public async Task<IActionResult> GetShopCoverPicture(int shopId)
         {
             try
             {
-                return await this.shopService.GetCoverPictureAsync(shopId);
+                var data = await this.shopService.GetCoverPictureAsync(shopId);
+                return new FileContentResult(data, MediaTypeNames.Application.Octet);
             }
             catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.ShopIdNotFound)
             {

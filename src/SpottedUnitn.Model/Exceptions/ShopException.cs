@@ -70,7 +70,7 @@ namespace SpottedUnitn.Model.Exceptions
             return new ShopException(ShopExceptionCode.InvalidLocationPostalCode, $"postal code cannot be null or empty");
         }
 
-        public static ShopException InvalidLocationProvinceeException(string province)
+        public static ShopException InvalidLocationProvinceException(string province)
         {
             return new ShopException(ShopExceptionCode.InvalidLocationProvince, $"province cannot be null or empty");
         }
@@ -94,6 +94,11 @@ namespace SpottedUnitn.Model.Exceptions
         public static ShopException ShopIdNotFoundException(int id)
         {
             return new ShopException(ShopExceptionCode.ShopIdNotFound, "shop (id={0}) has not been found", id);
+        }
+
+        public override string GetCodeName()
+        {
+            return ((ShopExceptionCode)this.Code).ToString();
         }
     }
 }

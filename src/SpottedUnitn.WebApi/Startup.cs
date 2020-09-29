@@ -25,6 +25,9 @@ using SpottedUnitn.WebApi.ErrorHandling;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 
 namespace SpottedUnitn.WebApi
 {
@@ -63,7 +66,7 @@ namespace SpottedUnitn.WebApi
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IShopService, ShopService>();
 
-            // configure jwt authentication
+            #region configure jwt authentication
             var jwtConfigs = authSection.Get<JWTOptions>();
             var key = Encoding.ASCII.GetBytes(jwtConfigs.Secret);
             services.AddAuthentication(x =>
@@ -83,11 +86,29 @@ namespace SpottedUnitn.WebApi
                     ValidateAudience = false
                 };
             });
+            #endregion
             services.AddAuthorization(options =>
             {
                 options.AddOnlyRegisteredOrAdminPolicy();
                 options.AddOnlyAdminPolicy();
             });
+
+            #region configure localization
+            services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
+            services.Configure<RequestLocalizationOptions>(opts =>
+            {
+                var supportedCultures = new List<CultureInfo>
+                {
+                    new CultureInfo("en"),
+                    new CultureInfo("it")
+                };
+
+                opts.DefaultRequestCulture = new RequestCulture("en");
+                opts.SupportedCultures = supportedCultures;
+                opts.SupportedUICultures = supportedCultures;
+                opts.RequestCultureProviders = new[] { new AcceptLanguageHeaderRequestCultureProvider() };
+            });
+            #endregion
 
             services.AddCors();
             services.AddControllers();
@@ -131,6 +152,9 @@ namespace SpottedUnitn.WebApi
             {
                 app.UseExceptionHandler("/error/production");
             }
+
+            var localizeOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(localizeOptions.Value);
 
             app.UseHttpsRedirection();
 

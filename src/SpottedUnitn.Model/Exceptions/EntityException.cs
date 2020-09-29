@@ -5,15 +5,22 @@ using System.Text;
 
 namespace SpottedUnitn.Model.Exceptions
 {
-    public class EntityException : Exception
+    public abstract class EntityException : Exception
     {
         public int Code { get; set; }
 
         public object[] MessageParams { get; set; }
 
-        public EntityException(int code, string message, params object[] messageParams) : base(message)
+        // message is the entire message
+        public override string Message => string.Format(this.FormattedMessage, this.MessageParams);
+
+        // formattedMessage is the message with parameters unfilled
+        public string FormattedMessage { get; }
+
+        public EntityException(int code, string message, params object[] messageParams) : base()
         {
             this.Code = code;
+            this.FormattedMessage = message;
             this.MessageParams = messageParams;
         }
 
@@ -21,5 +28,7 @@ namespace SpottedUnitn.Model.Exceptions
         {
             return codes.Contains(this.Code);
         }
+
+        public abstract string GetCodeName();
     }
 }
