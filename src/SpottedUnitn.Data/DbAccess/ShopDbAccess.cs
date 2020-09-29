@@ -90,7 +90,7 @@ namespace SpottedUnitn.Data.DbAccess
             return shop.CoverPicture.CoverPicture;
         }
 
-        public async Task<Shop> GetShopAsync(int id)
+        public async Task<ShopInfoDto> GetShopAsync(int id)
         {
             var shop = await this.modelContext.Shops
                 .Include(s => s.CoverPicture)
@@ -100,7 +100,16 @@ namespace SpottedUnitn.Data.DbAccess
             if (shop == null)
                 throw ShopException.ShopIdNotFoundException(id);
 
-            return shop;
+            return new ShopInfoDto()
+            {
+                Id = shop.Id,
+                Description = shop.Description,
+                Discount = shop.Discount,
+                LinkToSite = shop.LinkToSite,
+                Location = shop.Location,
+                Name = shop.Name,
+                PhoneNumber = shop.PhoneNumber
+            };
         }
     }
 }

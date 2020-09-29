@@ -97,7 +97,7 @@ namespace SpottedUnitn.WebApi.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status200OK)]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest)]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Shop>> GetShop(int shopId)
+        public async Task<ActionResult<ShopInfoDto>> GetShop(int shopId)
         {
             try
             {

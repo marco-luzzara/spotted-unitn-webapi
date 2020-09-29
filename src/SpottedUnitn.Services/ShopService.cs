@@ -47,7 +47,7 @@ namespace SpottedUnitn.Services
             return await this.dbAccess.GetCoverPictureAsync(id);
         }
 
-        public async Task<Shop> GetShopInfoAsync(int id)
+        public async Task<ShopInfoDto> GetShopInfoAsync(int id)
         {
             return await this.dbAccess.GetShopAsync(id);
         }

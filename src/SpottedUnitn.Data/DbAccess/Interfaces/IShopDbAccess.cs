@@ -11,7 +11,7 @@ namespace SpottedUnitn.Data.DbAccess
 
         Task<Shop> AddShopAsync(Shop shop);
 
-        Task<Shop> GetShopAsync(int id);
+        Task<ShopInfoDto> GetShopAsync(int id);
 
         Task<Shop> ChangeShopDataAsync(int shopId, Shop shop);
 

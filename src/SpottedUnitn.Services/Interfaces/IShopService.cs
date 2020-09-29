@@ -14,7 +14,7 @@ namespace SpottedUnitn.Services.Interfaces
 
         Task AddShopAsync(ShopDataDto shop);
 
-        Task<Shop> GetShopInfoAsync(int id);
+        Task<ShopInfoDto> GetShopInfoAsync(int id);
 
         Task ChangeShopDataAsync(int shopId, ShopDataDto shopData);
 
