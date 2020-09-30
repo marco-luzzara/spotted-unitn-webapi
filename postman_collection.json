@@ -107,7 +107,7 @@
 								},
 								{
 									"key": "mail",
-									"value": "m.luzz@gmail.com",
+									"value": "m.luzz1@gmail.com",
 									"type": "text"
 								},
 								{
@@ -509,14 +509,14 @@
 							]
 						},
 						"url": {
-							"raw": "{{protocol}}://{{endpoint}}/shops/100",
+							"raw": "{{protocol}}://{{endpoint}}/shops/33",
 							"protocol": "{{protocol}}",
 							"host": [
 								"{{endpoint}}"
 							],
 							"path": [
 								"shops",
-								"100"
+								"33"
 							]
 						}
 					},
@@ -637,17 +637,17 @@
 	],
 	"variable": [
 		{
-			"id": "3c5a06d3-774a-47d8-a472-3735429e3dfe",
+			"id": "10dbfcae-1e3e-4332-b32c-b656082f3ae0",
 			"key": "endpoint",
 			"value": "localhost:44319"
 		},
 		{
-			"id": "b9fa3803-4b17-4b1e-b241-ad64cf379ae0",
+			"id": "4807bd07-b47c-416a-96c7-fcfb3f554bf4",
 			"key": "token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6MjIwLCJyb2xlIjoiQWRtaW4iLCJuYmYiOjE2MDA2MTI0OTAsImV4cCI6MTYwMTIxNzI5MCwiaWF0IjoxNjAwNjEyNDkwfQ.jzCinYbu-n4bVbSpmtgSpweUTtpa7JpfVcbBGg9j8NY"
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6MjIwLCJyb2xlIjoiQWRtaW4iLCJuYmYiOjE2MDE0MTY5MjIsImV4cCI6MTYwMjAyMTcyMiwiaWF0IjoxNjAxNDE2OTIyfQ.6efF5tp7ARuY_896aDUSHnCAIpVyn26_XSABs3YL4zg"
 		},
 		{
-			"id": "dd6e8324-bbf1-46d4-bf94-8295e4b70e9a",
+			"id": "c835db86-d6cc-4ca6-b979-98acf5b1453c",
 			"key": "protocol",
 			"value": "https"
 		}
