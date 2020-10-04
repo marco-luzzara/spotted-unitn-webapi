@@ -1,0 +1,29 @@
+# #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS base
+WORKDIR /app
+
+# copy csproj and restore as distinct layers
+COPY src/. ./src/
+
+WORKDIR /app/src/SpottedUnitn.WebApi
+RUN dotnet restore SpottedUnitn.WebApi.csproj && \
+    dotnet build SpottedUnitn.WebApi.csproj -c Release && \
+    dotnet publish SpottedUnitn.WebApi.csproj -c Release -o ../../dist 
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS final
+EXPOSE 80
+EXPOSE 443
+
+ENV ASPNETCORE_APPLY_MIGRATIONS_AT_STARTUP=false
+
+WORKDIR /app
+COPY --from=base /app/dist/ ./
+
+ENV ASPNETCORE_URLS="https://+;http://+"
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_HTTPS_PORT=8001
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password="password"
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+
+ENTRYPOINT ["dotnet", "SpottedUnitn.WebApi.dll"]

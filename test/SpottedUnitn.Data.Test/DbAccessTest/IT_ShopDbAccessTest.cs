@@ -220,7 +220,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
         #region GetShopAsync
         [DataTestMethod]
         [DbContextDataSource]
-        public async Task GetShopAsyncAsync_Ok(DbContextOptionsBuilder<ModelContext> builder)
+        public async Task GetShopAsync_Ok(DbContextOptionsBuilder<ModelContext> builder)
         {
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);
@@ -236,7 +236,6 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
                 ctx.ChangeTracker.LazyLoadingEnabled = false;
                 Assert.AreEqual(shop.Id, retrievedShop.Id);
-                CollectionAssert.AreEqual(ShopUtils.VALID_COVERPICTURE, retrievedShop.CoverPicture.CoverPicture);
             }
             finally
             {
@@ -248,7 +247,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
         [DataTestMethod]
         [DbContextDataSource]
         [ExpectedEntityException(typeof(ShopException), (int)ShopException.ShopExceptionCode.ShopIdNotFound)]
-        public async Task GetShopAsyncAsync_IdNotFound_Throw(DbContextOptionsBuilder<ModelContext> builder)
+        public async Task GetShopAsync_IdNotFound_Throw(DbContextOptionsBuilder<ModelContext> builder)
         {
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);

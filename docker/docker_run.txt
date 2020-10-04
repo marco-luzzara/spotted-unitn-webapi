@@ -1,0 +1,85 @@
+REQUIREMENTS:
+- Https Certificate
+create development certificate if not existing (or be sure to have one)
+<
+    dotnet dev-certs https -ep $env:USERPROFILE\.aspnet\https\spotted_webapp_cert.pfx -p 'TestingPwd'
+    dotnet dev-certs https --trust
+>
+
+- enable docker BUILD_KIT
+<
+    DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 { yourcommand }
+>
+
+- user defined network (bridge)
+<
+    docker network create --driver=bridge spottedunitnwebapp_network
+>
+
+- docker volume for sqlserver database
+<
+    docker volume create unitnspottedsqlserver_data
+>
+
+
+starting folder: .. (where .sln file resides)
+
+********** Web Api **********
+
+build web api service dockerfile
+<
+    docker build --no-cache -f ./docker/SpottedWebApi/Dockerfile.WebApi -t unitnspottedwebapi:latest .
+>
+
+
+run service
+<
+    docker run -d --network=spottedunitnwebapp_network -p 8000:80 -p 8001:443 --name unitnspottedwebapi_service `
+        -e ASPNETCORE_APPLY_MIGRATIONS_AT_STARTUP="true" `
+        -e ASPNETCORE_URLS="https://+;http://+" `
+        -e ASPNETCORE_HTTPS_PORT=8001 `
+        -e ASPNETCORE_Kestrel__Certificates__Default__Password="TestingPwd" `
+        -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/spotted_webapp_cert.pfx `
+        -v "$env:USERPROFILE\.aspnet\https:/https/" `
+        -v "$(pwd)/docker/SpottedWebApi/configs/appsettings.json:/app/appsettings.json" `
+        unitnspottedwebapi:latest
+>
+
+
+********** SQLServer instance **********
+
+build sqlserver dockerfile
+<
+    docker build --no-cache --secret id=dbpassword,src=./docker/SqlServer/dbsecret.txt -f ./docker/SqlServer/Dockerfile.SqlServer -t unitnspottedsqlserver:latest .
+>
+
+
+run instance
+<
+    docker run --network=spottedunitnwebapp_network `
+        -v unitnspottedsqlserver_data:/var/opt/mssql `
+        -p 1435:1433 -d --name sqlserver_unitnspotted -h sqlserver_unitnspotted `
+        unitnspottedsqlserver:latest
+>
+
+to connect from sqlserver management studio: 
+server name: localhost,1435
+Authentication SQL Server Authentication
+Login: SA
+Password: yourpasswordindbsecret
+
+
+to connect from cmd:
+docker exec -it sqlserver_unitnspotted "bash"
+/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "mylocalPassword1" yourquery (terminated with GO)
+
+CREATE DATABASE UnitnSpotted
+GO
+
+
+full doc: https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-2017&pivots=cs1-bash
+
+
+********** Only with Docker-Compose **********
+REQUIREMENTS:
+- build sqlserver image (cannot specify secret option in docker-compose)

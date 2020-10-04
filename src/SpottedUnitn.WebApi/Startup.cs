@@ -34,10 +34,12 @@ namespace SpottedUnitn.WebApi
     public class Startup
     {
         public static readonly ILoggerFactory loggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
+        protected readonly string APPLY_MIGRATIONS_AT_STARTUP;
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            APPLY_MIGRATIONS_AT_STARTUP = this.Configuration.GetValue<string>(nameof(APPLY_MIGRATIONS_AT_STARTUP));
         }
 
         public IConfiguration Configuration { get; }
@@ -135,8 +137,11 @@ namespace SpottedUnitn.WebApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ModelContext dbContext)
         {
+            if (this.APPLY_MIGRATIONS_AT_STARTUP == "true")
+                dbContext.Database.Migrate();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -151,6 +156,7 @@ namespace SpottedUnitn.WebApi
             else
             {
                 app.UseExceptionHandler("/error/production");
+                app.UseHsts();
             }
 
             var localizeOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();

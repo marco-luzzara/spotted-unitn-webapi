@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  unitnspottedwebapi:
+    build:
+      context: ./SpottedWebApi
+      dockerfile: Dockerfile.WebApi
+    container_name: unitnspottedwebapi_service
+    depends_on: 
+      - sqlserver
+    environment: 
+      - ASPNETCORE_APPLY_MIGRATIONS_AT_STARTUP="true"
+      - ASPNETCORE_URLS="https://+;http://+"
+      - ASPNETCORE_HTTPS_PORT=8001
+      - ASPNETCORE_Kestrel__Certificates__Default__Password="TestingPwd"
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/spotted_webapp_cert.pfx
+    networks:
+      - spottedunitnwebapp_network
+    ports:
+      - "8000:80"
+      - "8001:443"
+    volumes:
+      - .:/code
+      - logvolume01:/var/log
+    links:
+      - redis
+  sqlserver:
+    image: redis
+volumes:
+  logvolume01: {}

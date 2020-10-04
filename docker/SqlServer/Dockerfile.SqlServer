@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:experimental
+FROM mcr.microsoft.com/mssql/server:latest
+EXPOSE 1433
+
+ENV ACCEPT_EULA=Y
+ENV MSSQL_PID=Express
+ENV SA_PASSWORD=testingSpotted1
+
+USER root
+
+RUN --mount=type=secret,id=dbpassword /opt/mssql/bin/sqlservr & \
+    sleep 60 && \
+    /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'testingSpotted1' -Q "IF NOT EXISTS (SELECT 1 FROM sys.Databases WHERE Name = 'UnitnSpotted') CREATE DATABASE UnitnSpotted" && \
+    /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'testingSpotted1' -Q "ALTER LOGIN SA WITH PASSWORD='$(cat /run/secrets/dbpassword)'"
+
+ENTRYPOINT ["/opt/mssql/bin/sqlservr"]
