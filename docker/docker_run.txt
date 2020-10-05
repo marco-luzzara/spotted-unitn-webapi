@@ -82,4 +82,6 @@ full doc: https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-
 
 ********** Only with Docker-Compose **********
 REQUIREMENTS:
-- build sqlserver image (cannot specify secret option in docker-compose)
+- build sqlserver image and webapi (cannot specify secret option in docker-compose)
+
+docker-compose up
