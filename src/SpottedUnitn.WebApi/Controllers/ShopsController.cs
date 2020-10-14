@@ -193,7 +193,8 @@ namespace SpottedUnitn.WebApi.Controllers
             try
             {
                 var data = await this.shopService.GetCoverPictureAsync(shopId);
-                return new FileContentResult(data, MediaTypeNames.Application.Octet);
+                var responseContent = data ?? new byte[] { };
+                return new FileContentResult(responseContent, MediaTypeNames.Application.Octet);
             }
             catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.ShopIdNotFound)
             {

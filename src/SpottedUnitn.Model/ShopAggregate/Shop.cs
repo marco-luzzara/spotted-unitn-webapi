@@ -46,7 +46,7 @@ namespace SpottedUnitn.Model.ShopAggregate
             shop.SetDescription(description);
             shop.SetDiscount(discount);
             shop.SetLocation(location);
-            shop.CoverPicture = new ShopCoverPicture(new byte[] { });
+            shop.CoverPicture = new ShopCoverPicture(null);
             shop.SetLinkToSite("");
             shop.SetPhoneNumber("");
 

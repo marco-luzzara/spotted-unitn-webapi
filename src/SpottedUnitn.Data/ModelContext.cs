@@ -171,7 +171,7 @@ namespace SpottedUnitn.Data
 
                 builder.Property(upp => upp.CoverPicture)
                     .HasField("coverPicture")
-                    .IsRequired();
+                    .IsRequired(false);
             });
 
             modelBuilder.Entity<Shop>()

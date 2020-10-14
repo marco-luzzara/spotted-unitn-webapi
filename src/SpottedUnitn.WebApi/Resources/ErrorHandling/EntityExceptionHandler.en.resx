@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ShopException.InvalidCoverPicture" xml:space="preserve">
-    <value>cover picture cannot be null, use an empty array to specify no picture</value>
+    <value>cover picture cannot be empty, specify null if you want to keep last picture</value>
   </data>
   <data name="ShopException.InvalidDescription" xml:space="preserve">
     <value>description cannot be null or empty</value>
@@ -172,7 +172,7 @@
     <value>name cannot be null or empty</value>
   </data>
   <data name="UserException.InvalidPassword" xml:space="preserve">
-    <value>password must be at least 8 characters long and contain letters and digits</value>
+    <value>password must be at least 8 characters long and contain letters (at least 1 uppercase and 1 lowercase) and digits (at least 1)</value>
   </data>
   <data name="UserException.InvalidProfilePhoto" xml:space="preserve">
     <value>profilePhoto cannot be null or empty</value>

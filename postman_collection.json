@@ -637,17 +637,17 @@
 	],
 	"variable": [
 		{
-			"id": "10dbfcae-1e3e-4332-b32c-b656082f3ae0",
+			"id": "c5a5362b-c8d6-46f9-a33a-f8b59692ac9e",
 			"key": "endpoint",
-			"value": "localhost:44319"
+			"value": "localhost:8001"
 		},
 		{
-			"id": "4807bd07-b47c-416a-96c7-fcfb3f554bf4",
+			"id": "2c5fcb10-0f94-4665-862a-3e7c1098ef5c",
 			"key": "token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6MjIwLCJyb2xlIjoiQWRtaW4iLCJuYmYiOjE2MDE0MTY5MjIsImV4cCI6MTYwMjAyMTcyMiwiaWF0IjoxNjAxNDE2OTIyfQ.6efF5tp7ARuY_896aDUSHnCAIpVyn26_XSABs3YL4zg"
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6NDksInJvbGUiOiJBZG1pbiIsIm5iZiI6MTYwMjcwMDk0MCwiZXhwIjoxNjAzMzA1NzQwLCJpYXQiOjE2MDI3MDA5NDB9.RNCFG8oMdUNbjBUF-Wbpb3QY8LRv8bqm7eq5xL_R5fk"
 		},
 		{
-			"id": "c835db86-d6cc-4ca6-b979-98acf5b1453c",
+			"id": "c0d6581f-7b2a-4e3c-8947-32264276d74a",
 			"key": "protocol",
 			"value": "https"
 		}

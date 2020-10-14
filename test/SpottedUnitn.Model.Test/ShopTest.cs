@@ -5,6 +5,7 @@ using SpottedUnitn.Model.ShopAggregate;
 using SpottedUnitn.Model.ShopAggregate.ValueObjects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -269,31 +270,35 @@ namespace SpottedUnitn.Model.Test
                 Assert.AreEqual(description, shop.Description);
         }
 
-        public static IEnumerable<object[]> GetDataRow_CoverPictureValidation()
+        [TestMethod]
+        [ExpectedEntityException(typeof(ShopException), (int)ShopException.ShopExceptionCode.InvalidCoverPicture)]
+        public void SetCoverPicture_CoverPictureEmpty()
         {
-            yield return new object[] { null, false };
-            yield return new object[] { new byte[] { }, true };
-            yield return new object[] { VALID_COVERPICTURE, true };
+            Shop shop = Shop.Create(VALID_NAME, VALID_DESCRIPTION, VALID_DISCOUNT, VALID_LOCATION);
+
+            shop.SetCoverPicture(new byte[] { });
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetDataRow_CoverPictureValidation), DynamicDataSourceType.Method)]
-        public void SetCoverPicture_ValidationCheck(byte[] coverPicture, bool isValid)
+        [TestMethod]
+        public void SetCoverPicture_CoverPictureNull()
         {
-            var validationPassed = true;
             Shop shop = Shop.Create(VALID_NAME, VALID_DESCRIPTION, VALID_DISCOUNT, VALID_LOCATION);
-            try
-            {
-                shop.SetCoverPicture(coverPicture);
-            }
-            catch (ShopException exc) when (exc.Code == (int)ShopException.ShopExceptionCode.InvalidCoverPicture)
-            {
-                validationPassed = false;
-            }
 
-            Assert.AreEqual(isValid, validationPassed);
-            if (isValid)
-                CollectionAssert.AreEqual(coverPicture, shop.CoverPicture.CoverPicture);
+            shop.SetCoverPicture(VALID_COVERPICTURE);
+            shop.SetCoverPicture(null);
+
+            CollectionAssert.AreEqual(VALID_COVERPICTURE, shop.CoverPicture.CoverPicture);
+        }
+
+        [TestMethod]
+        public void SetCoverPicture_CoverPictureValid()
+        {
+            Shop shop = Shop.Create(VALID_NAME, VALID_DESCRIPTION, VALID_DISCOUNT, VALID_LOCATION);
+            var newCoverPicture = VALID_COVERPICTURE.ToList().Append((byte)0).ToArray();
+
+            shop.SetCoverPicture(newCoverPicture);
+
+            CollectionAssert.AreEqual(newCoverPicture, shop.CoverPicture.CoverPicture);
         }
 
         [DataTestMethod]

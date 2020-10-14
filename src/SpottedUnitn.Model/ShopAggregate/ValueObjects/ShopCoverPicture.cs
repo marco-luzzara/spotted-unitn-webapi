@@ -12,7 +12,7 @@ namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
         public int ShopId => this.shopId;
 
         private byte[] coverPicture;
-        public byte[] CoverPicture => this.coverPicture.ToArray();
+        public byte[] CoverPicture => this.coverPicture?.ToArray();
 
         protected ShopCoverPicture()
         {
@@ -23,12 +23,15 @@ namespace SpottedUnitn.Model.ShopAggregate.ValueObjects
             this.SetCoverPicture(coverPicture);
         }
 
-        private static byte[] ValidateCoverPicture(byte[] coverPicture)
+        private byte[] ValidateCoverPicture(byte[] newCoverPicture)
         {
-            if (coverPicture == null)
-                throw ShopException.InvalidCoverPictureException(coverPicture);
+            if (newCoverPicture == null)
+                return this.coverPicture;
 
-            return coverPicture;
+            if (newCoverPicture.Length == 0)
+                throw ShopException.InvalidCoverPictureException(newCoverPicture);
+
+            return newCoverPicture;
         }
 
         public void SetCoverPicture(byte[] coverPicture)
