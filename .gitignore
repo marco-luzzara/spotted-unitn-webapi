@@ -5,6 +5,8 @@
 
 # Custom ignore
 sqlserver_config.txt
+credentials.txt
+docker/certificates/
 
 # User-specific files
 *.rsuser
