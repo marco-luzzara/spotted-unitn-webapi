@@ -1,29 +1,57 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SpottedUnitn.Data.Dto.Shop;
 using SpottedUnitn.Infrastructure.Services;
+using SpottedUnitn.Infrastructure.Services.FileStorage;
 using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Model.ShopAggregate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SpottedUnitn.Data.DbAccess
 {
     public class ShopDbAccess : EntityDbAccess<Shop>, IShopDbAccess
     {
-        public ShopDbAccess(ModelContext modelContext, IDateTimeOffsetService dtoService) : base(modelContext, dtoService)
+        public ShopDbAccess(ModelContext modelContext, IDateTimeOffsetService dtoService, IFileStorageService fileStorageService) 
+            : base(modelContext, dtoService, fileStorageService)
         {
         }
+
+        protected string BuildFileIdFromShopId(int userId) => $"shop_{userId}";
 
         public async Task<Shop> AddShopAsync(Shop shop)
         {
             if (shop == null)
                 throw new ArgumentNullException("shop cannot be null");
 
-            await this.modelContext.AddAsync(shop);
-            await this.modelContext.SaveChangesAsync();
+            var cts = new CancellationTokenSource();
+            var ct = cts.Token;
+            var transaction = await this.modelContext.Database.BeginTransactionAsync();
+            
+            try
+            {
+                var newUserTask = this.modelContext.AddAsync(shop, ct).AsTask();
+                var saveChangesTask = newUserTask.ContinueWith(t => this.modelContext.SaveChangesAsync(ct)).Unwrap();
+
+                var fileId = BuildFileIdFromShopId(shop.Id);
+                var storeFileTask = this.fileStorageService.StoreFileAsync(fileId, shop.CoverPicture, ct);
+
+                await Task.WhenAll(saveChangesTask, storeFileTask);
+                await transaction.CommitAsync();
+            }
+            catch (Exception exc)
+            {
+                cts.Cancel();
+                await transaction.RollbackAsync();
+                throw exc;
+            }
+            finally
+            {
+                await transaction.DisposeAsync();
+            }
 
             return shop;
         }
@@ -44,9 +72,18 @@ namespace SpottedUnitn.Data.DbAccess
             updateShop.SetDiscount(shop.Discount);
             updateShop.SetLocation(shop.Location);
             updateShop.SetPhoneNumber(shop.PhoneNumber);
-            updateShop.SetCoverPicture(shop.CoverPicture.CoverPicture);
+            updateShop.SetCoverPicture(shop.CoverPicture);
 
+            await using var transaction = await this.modelContext.Database.BeginTransactionAsync();
             await this.modelContext.SaveChangesAsync();
+
+            if (shop.CoverPicture != null)
+            {
+                var fileId = BuildFileIdFromShopId(shop.Id);
+                await this.fileStorageService.StoreFileAsync(fileId, updateShop.CoverPicture);
+            }
+
+            await transaction.CommitAsync();
 
             return updateShop;
         }
@@ -87,7 +124,7 @@ namespace SpottedUnitn.Data.DbAccess
             if (shop == null)
                 throw ShopException.ShopIdNotFoundException(id);
 
-            return shop.CoverPicture.CoverPicture;
+            return shop.CoverPicture;
         }
 
         public async Task<ShopInfoDto> GetShopAsync(int id)

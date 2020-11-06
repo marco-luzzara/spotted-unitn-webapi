@@ -1,15 +1,18 @@
 ﻿using SpottedUnitn.Infrastructure.Validation;
 using SpottedUnitn.Model.Exceptions;
+using SpottedUnitn.Model.Interfaces;
 using SpottedUnitn.Model.ShopAggregate.ValueObjects;
 using SpottedUnitn.Model.UserAggregate;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace SpottedUnitn.Model.ShopAggregate
 {
-    public class Shop
+    public class Shop : IEntity<int>
     {
         private int id;
         public int Id => this.id;
@@ -26,7 +29,8 @@ namespace SpottedUnitn.Model.ShopAggregate
         private Location location;
         public virtual Location Location => this.location;
 
-        public virtual ShopCoverPicture CoverPicture { get; private set; }
+        private byte[] coverPicture;
+        public byte[] CoverPicture => this.coverPicture?.ToArray();
 
         private string discount;
         public string Discount => this.discount;
@@ -46,7 +50,7 @@ namespace SpottedUnitn.Model.ShopAggregate
             shop.SetDescription(description);
             shop.SetDiscount(discount);
             shop.SetLocation(location);
-            shop.CoverPicture = new ShopCoverPicture(null);
+            shop.coverPicture = null;
             shop.SetLinkToSite("");
             shop.SetPhoneNumber("");
 
@@ -78,7 +82,7 @@ namespace SpottedUnitn.Model.ShopAggregate
 
         public void SetCoverPicture(byte[] coverPicture)
         {
-            this.CoverPicture.SetCoverPicture(coverPicture);
+            this.coverPicture = ValidateCoverPicture(coverPicture);
         }
 
         public void SetDiscount(string discount)
@@ -135,6 +139,17 @@ namespace SpottedUnitn.Model.ShopAggregate
                 throw ShopException.InvalidPhoneNumberException(phoneNumber);
 
             return phoneNumber;
+        }
+
+        private byte[] ValidateCoverPicture(byte[] newCoverPicture)
+        {
+            if (newCoverPicture == null)
+                return this.coverPicture;
+
+            if (newCoverPicture.Length == 0)
+                throw ShopException.InvalidCoverPictureException(newCoverPicture);
+
+            return newCoverPicture;
         }
     }
 }

@@ -287,7 +287,7 @@ namespace SpottedUnitn.Model.Test
             shop.SetCoverPicture(VALID_COVERPICTURE);
             shop.SetCoverPicture(null);
 
-            CollectionAssert.AreEqual(VALID_COVERPICTURE, shop.CoverPicture.CoverPicture);
+            CollectionAssert.AreEqual(VALID_COVERPICTURE, shop.CoverPicture);
         }
 
         [TestMethod]
@@ -298,7 +298,7 @@ namespace SpottedUnitn.Model.Test
 
             shop.SetCoverPicture(newCoverPicture);
 
-            CollectionAssert.AreEqual(newCoverPicture, shop.CoverPicture.CoverPicture);
+            CollectionAssert.AreEqual(newCoverPicture, shop.CoverPicture);
         }
 
         [DataTestMethod]

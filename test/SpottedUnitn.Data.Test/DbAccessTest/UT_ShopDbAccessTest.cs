@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using SpottedUnitn.Data.DbAccess;
 using SpottedUnitn.Data.Test.Attributes;
 using SpottedUnitn.Infrastructure.Test.TestingUtility;
@@ -16,7 +17,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
     {
         protected IShopDbAccess GetDbAccessInstance(ModelContext ctx)
         {
-            var dbAccess = new ShopDbAccess(ctx, this.dtoService);
+            var dbAccess = new ShopDbAccess(ctx, this.dtoService, this.fileStorageService);
             return dbAccess;
         }
 

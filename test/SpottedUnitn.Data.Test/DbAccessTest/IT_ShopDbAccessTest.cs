@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using SpottedUnitn.Data.DbAccess;
 using SpottedUnitn.Data.Test.Attributes;
 using SpottedUnitn.Infrastructure.Test.TestingUtility;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SpottedUnitn.Data.Test.DbAccessTest
@@ -18,8 +20,12 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
     {
         protected IShopDbAccess GetDbAccessInstance(ModelContext ctx)
         {
-            var dbAccess = new ShopDbAccess(ctx, this.dtoService);
+            var dbAccess = new ShopDbAccess(ctx, this.dtoService, this.fileStorageService);
             return dbAccess;
+        }
+
+        public IT_ShopDbAccessTest() : base()
+        {
         }
 
         #region AddShopAsync
@@ -34,17 +40,19 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             try
             {
                 var addedShop = await dbAccess.AddShopAsync(shop);
+                var savedShop = await GetObjectFromDbAsync<Shop, int>(ctx, addedShop.Id);
 
-                var entityEntry = ctx.ChangeTracker.Entries<Shop>().ToList().Single();
-                var dbProps = await entityEntry.GetDatabaseValuesAsync();
-                var savedShop = (Shop)dbProps.ToObject();
-
-                Assert.AreEqual(addedShop.Id, savedShop.Id);
+                Assert.IsNotNull(savedShop);
             }
             finally
             {
                 ctx.Shops.Remove(shop);
                 await ctx.SaveChangesAsync();
+
+                this.SetupFileStorageServiceMock(fssMock =>
+                {
+                    fssMock.Verify(s => s.StoreFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()), Times.Once());
+                });
             }
         }
 
@@ -58,12 +66,73 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
             await dbAccess.AddShopAsync(null);
         }
+
+        [DataTestMethod]
+        [DbContextDataSource]
+        public async Task AddShopAsync_CannotStorePicture_ShopNotCreated(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+            var shop = ShopUtils.GenerateShop();
+            this.SetupFileStorageServiceMock(fssMock =>
+            {
+                fssMock.Setup(s => s.StoreFileAsync(It.IsAny<string>(), shop.CoverPicture, It.IsAny<CancellationToken>())).Throws(new AccessViolationException());
+            });
+
+            var shopsCount = await ctx.Shops.CountAsync();
+            try
+            {
+                var addedShop = await dbAccess.AddShopAsync(shop);
+                Assert.Fail();
+            }
+            catch (AccessViolationException exc)
+            {
+                var shopsNewCount = await ctx.Shops.CountAsync();
+                Assert.AreEqual(shopsCount, shopsNewCount);
+            }
+        }
         #endregion
 
         #region ChangeShopDataAsync
         [DataTestMethod]
         [DbContextDataSource]
         public async Task ChangeShopDataAsync_Ok(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+            var shop = ShopUtils.GenerateShop();
+            var newCoverPicture = new byte[] { 0x01 }.ToArray();
+
+            try
+            {
+                await ctx.Shops.AddAsync(shop);
+                await ctx.SaveChangesAsync();
+
+                var newDescription = shop.Description + "_changed";
+                shop.SetDescription(newDescription);
+                shop.SetCoverPicture(newCoverPicture);
+
+                var changedShop = await dbAccess.ChangeShopDataAsync(shop.Id, shop);
+                Shop changedShopFromDb = await GetObjectFromDbAsync<Shop, int>(ctx, shop.Id);
+
+                Assert.AreEqual(newDescription, changedShopFromDb.Description);
+                CollectionAssert.AreEqual(newCoverPicture, changedShop.CoverPicture);
+            }
+            finally
+            {
+                ctx.Shops.Remove(shop);
+                await ctx.SaveChangesAsync();
+
+                this.SetupFileStorageServiceMock(fssMock =>
+                {
+                    fssMock.Verify(s => s.StoreFileAsync(It.IsAny<string>(), newCoverPicture, It.IsAny<CancellationToken>()), Times.Once());
+                });
+            }
+        }
+
+        [DataTestMethod]
+        [DbContextDataSource]
+        public async Task ChangeShopDataAsync_PictureDoesNotChange_Ok(DbContextOptionsBuilder<ModelContext> builder)
         {
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);
@@ -77,16 +146,51 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
                 var newDescription = shop.Description + "_changed";
                 shop.SetDescription(newDescription);
 
-                await dbAccess.ChangeShopDataAsync(shop.Id, shop);
-
-                var entityEntry = ctx.ChangeTracker.Entries<Shop>().ToList().Single();
-                var dbProps = await entityEntry.GetDatabaseValuesAsync();
-                var changedShop = (Shop)dbProps.ToObject();
-
-                Assert.AreEqual(newDescription, changedShop.Description);
+                var changedShop = await dbAccess.ChangeShopDataAsync(shop.Id, shop);
             }
             finally
             {
+                ctx.Shops.Remove(shop);
+                await ctx.SaveChangesAsync();
+
+                this.SetupFileStorageServiceMock(fssMock =>
+                {
+                    fssMock.Verify(s => s.StoreFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()), Times.Never());
+                });
+            }
+        }
+
+        [DataTestMethod]
+        [DbContextDataSource]
+        public async Task ChangeShopDataAsync_CannotUpdatePicture_Rollback(DbContextOptionsBuilder<ModelContext> builder)
+        {
+            var ctx = this.GetModelContext(builder);
+            var dbAccess = GetDbAccessInstance(ctx);
+            var shop = ShopUtils.GenerateShop();
+            var newCoverPicture = new byte[] { 0x01 }.ToArray();
+            var newDescription = shop.Description + "_changed";
+            this.SetupFileStorageServiceMock(fssMock =>
+            {
+                fssMock.Setup(s => s.StoreFileAsync(It.IsAny<string>(), newCoverPicture, It.IsAny<CancellationToken>())).Throws(new AccessViolationException());
+            });
+
+            try
+            {
+                await ctx.Shops.AddAsync(shop);
+                await ctx.SaveChangesAsync();
+
+                shop.SetDescription(newDescription);
+                shop.SetCoverPicture(newCoverPicture);
+
+                await dbAccess.ChangeShopDataAsync(shop.Id, shop);
+                Assert.Fail();
+            }
+            catch (AccessViolationException exc)
+            {
+                var unchangedShop = await GetObjectFromDbAsync<Shop, int>(ctx, shop.Id);
+                Assert.AreNotEqual(newDescription, unchangedShop.Description);
+                Assert.AreNotEqual(newCoverPicture, unchangedShop.CoverPicture);
+
                 ctx.Shops.Remove(shop);
                 await ctx.SaveChangesAsync();
             }
@@ -144,6 +248,10 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             var dbAccess = GetDbAccessInstance(ctx);
             var shop = ShopUtils.GenerateShop();
             int shopId = -1;
+            this.SetupFileStorageServiceMock(fssMock =>
+            {
+                fssMock.Verify(s => s.DeleteFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once());
+            });
 
             try
             {
@@ -187,6 +295,10 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);
             var shop = ShopUtils.GenerateShop();
+            this.SetupFileStorageServiceMock(fssMock =>
+            {
+                fssMock.Verify(s => s.GetFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once());
+            });
 
             try
             {
@@ -225,6 +337,10 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
             var ctx = this.GetModelContext(builder);
             var dbAccess = GetDbAccessInstance(ctx);
             var shop = ShopUtils.GenerateShop();
+            this.SetupFileStorageServiceMock(fssMock =>
+            {
+                fssMock.Verify(s => s.GetFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never());
+            });
 
             try
             {
@@ -234,7 +350,6 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
 
                 var retrievedShop = await dbAccess.GetShopAsync(shop.Id);
 
-                ctx.ChangeTracker.LazyLoadingEnabled = false;
                 Assert.AreEqual(shop.Id, retrievedShop.Id);
             }
             finally

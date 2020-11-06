@@ -18,7 +18,7 @@ namespace SpottedUnitn.Data.Test.DbAccessTest
     {
         protected UserDbAccess GetDbAccessInstance(ModelContext ctx)
         {
-            var dbAccess = new UserDbAccess(ctx, this.dtoService);
+            var dbAccess = new UserDbAccess(ctx, this.dtoService, this.fileStorageService);
             return dbAccess;
         }
 

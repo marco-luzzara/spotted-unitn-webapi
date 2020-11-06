@@ -1,13 +1,16 @@
 ﻿using SpottedUnitn.Infrastructure.Services;
 using SpottedUnitn.Infrastructure.Validation;
 using SpottedUnitn.Model.Exceptions;
+using SpottedUnitn.Model.Interfaces;
 using SpottedUnitn.Model.UserAggregate.ValueObjects;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Mail;
 
 namespace SpottedUnitn.Model.UserAggregate
 {
-    public class User
+    public class User : IEntity<int>
     {
         private int id;
         public int Id => this.id;
@@ -24,7 +27,8 @@ namespace SpottedUnitn.Model.UserAggregate
         private Credentials credentials;
         public virtual Credentials Credentials => this.credentials;
 
-        public virtual UserProfilePhoto ProfilePhoto { get; private set; }
+        private byte[] profilePhoto;
+        public byte[] ProfilePhoto => this.profilePhoto.ToArray();
 
         private DateTimeOffset? subscriptionDate;
         public DateTimeOffset? SubscriptionDate => this.subscriptionDate;
@@ -52,7 +56,7 @@ namespace SpottedUnitn.Model.UserAggregate
             user.SetName(name);
             user.SetLastName(lastName);
             user.SetCredentials(credentials);
-            user.ProfilePhoto = new UserProfilePhoto(profilePhoto);
+            user.SetProfilePhoto(profilePhoto);
             user.subscriptionDate = null;
             user.role = role;
 
@@ -69,10 +73,10 @@ namespace SpottedUnitn.Model.UserAggregate
 
         public void SetProfilePhoto(byte[] profilePhoto)
         {
-            this.ProfilePhoto.SetProfilePhoto(profilePhoto);
+            this.profilePhoto = ValidateProfilePhoto(profilePhoto);
         }
 
-        private static string ValidateName(string name)
+        private string ValidateName(string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw UserException.InvalidNameException(name);
@@ -80,12 +84,20 @@ namespace SpottedUnitn.Model.UserAggregate
             return name;
         }
 
-        private static string ValidateLastName(string lastName)
+        private string ValidateLastName(string lastName)
         {
             if (string.IsNullOrEmpty(lastName))
                 throw UserException.InvalidLastNameException(lastName);
 
             return lastName;
+        }
+
+        private byte[] ValidateProfilePhoto(byte[] profilePhoto)
+        {
+            if ((profilePhoto?.Length ?? 0) == 0)
+                throw UserException.InvalidProfilePhotoException(profilePhoto);
+
+            return profilePhoto;
         }
 
         public void ChangeRegistrationToConfirmed(IDateTimeOffsetService dtoService)

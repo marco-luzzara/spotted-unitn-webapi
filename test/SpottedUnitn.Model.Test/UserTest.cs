@@ -158,7 +158,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                CollectionAssert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
+                CollectionAssert.AreEqual(profilePhoto, user.ProfilePhoto);
         }
 
         [DataTestMethod]
@@ -222,7 +222,7 @@ namespace SpottedUnitn.Model.Test
 
             Assert.AreEqual(isValid, validationPassed);
             if (isValid)
-                CollectionAssert.AreEqual(profilePhoto, user.ProfilePhoto.ProfilePhoto);
+                CollectionAssert.AreEqual(profilePhoto, user.ProfilePhoto);
         }
 
         [TestMethod]

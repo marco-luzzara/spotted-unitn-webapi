@@ -83,5 +83,7 @@ full doc: https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-
 ********** Only with Docker-Compose **********
 REQUIREMENTS:
 - build sqlserver image and webapi (cannot specify secret option in docker-compose)
+- copy certificates
+- for some reason, the sqlserver password is not changed because of single/double quote escaping probably. in appconfigs.json use the pwd testingSpotted1
 
-docker-compose up
+docker-compose -f docker-compose.linux.yml up

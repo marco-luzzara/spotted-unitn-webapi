@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SpottedUnitn.Data.Dto.User;
 using SpottedUnitn.Infrastructure.Services;
+using SpottedUnitn.Infrastructure.Services.FileStorage;
 using SpottedUnitn.Model.Exceptions;
 using SpottedUnitn.Model.UserAggregate;
 using SpottedUnitn.Model.UserAggregate.ValueObjects;
@@ -15,7 +16,8 @@ namespace SpottedUnitn.Data.DbAccess
 {
     public class UserDbAccess : EntityDbAccess<User>, IUserDbAccess
     {
-        public UserDbAccess(ModelContext modelContext, IDateTimeOffsetService dtoService) : base(modelContext, dtoService)
+        public UserDbAccess(ModelContext modelContext, IDateTimeOffsetService dtoService, IFileStorageService fileStorageService) 
+            : base(modelContext, dtoService, fileStorageService)
         {
         }
 
@@ -114,7 +116,7 @@ namespace SpottedUnitn.Data.DbAccess
             if (user == null)
                 throw UserException.UserIdNotFoundException(id);
 
-            return user.ProfilePhoto.ProfilePhoto;
+            return user.ProfilePhoto;
         }
 
         public async Task<LoggedInUserDto> LoginAsync(Credentials credentials)
